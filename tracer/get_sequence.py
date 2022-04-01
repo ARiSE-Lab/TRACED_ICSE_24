@@ -24,6 +24,7 @@ def get_sequence(lang, problem, solution, input_id, src_file, src_file_relative,
     # log_file = row["log_file"]
     # output_file = row["output_file"]
 
+    verbose = True
     # global sequences_got
     # verbose = sequences_got < 5
     # sequences_got += 1

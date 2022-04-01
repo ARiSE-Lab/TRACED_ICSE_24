@@ -9,20 +9,29 @@ def get_files(args, path, problem_list):
     i = 0
     for problem_id in problem_list:
         problem_index = path / f'sorted_input_{problem_id}.txt'
-        if not problem_index.exists():
-            continue
-        num_solutions = 0
-        with open(problem_index) as f:
-            line = f.readline().strip()
-
-            i += 1
-            num_solutions += 1
-            yield path / line
-            while line:
+        if problem_index.exists():
+            num_solutions = 0
+            with open(problem_index) as f:
                 line = f.readline().strip()
+
                 i += 1
                 num_solutions += 1
                 yield path / line
+                while line:
+                    line = f.readline().strip()
+                    i += 1
+                    num_solutions += 1
+                    yield path / line
+                    if args.test and i >= 1000:
+                        return
+                    if args.limit_solutions is not None and num_solutions >= args.limit_solutions:
+                        break
+        else:
+            num_solutions = 0
+            for fname in path.glob(args.lang + '_*'):
+                i += 1
+                num_solutions += 1
+                yield fname
                 if args.test and i >= 1000:
                     return
                 if args.limit_solutions is not None and num_solutions >= args.limit_solutions:
@@ -39,6 +48,8 @@ def get_log_files(args):
         assert args.begin < args.end
         problem_list = [('p' + str(i).rjust(5, '0')) for i in range(args.begin, args.end+1)]
         print('cut to', len(problem_list), 'problems: ', list(sorted(problem_list)))
+    else:
+        problem_list = [('p' + str(i).rjust(5, '0')) for i in range(0, 4053)]
 
     log_files = {}
     output_files = {}

@@ -55,6 +55,7 @@ def parse_args():
     parser.add_argument('--root_dir', default='/work/LAS/weile-lab/benjis/weile-lab/tracing')
     parser.add_argument('--base_dirs', nargs='+')
     parser.add_argument('--src_dirs', nargs='+')
+    parser.add_argument('--input_dirs', nargs='+')
     parser.add_argument('--begin', type=int)
     parser.add_argument('--end', type=int)
     parser.add_argument('--limit_solutions', type=int)
@@ -82,13 +83,16 @@ lang_to_path = {
     "cpp": "C++",
     "java": "Java",
 }
+# TODO search
 src_dir = Path(args.src_dirs[0])
 # src_dirs = [Path(p) for p in args.src_dirs]
 # print(f'{src_dirs=}')
 # for p in src_dirs:
 #     assert p.exists(), p
-input_dir = Path(args.root_dir, "all_input_output")
-print(f'{input_dir=}')
+# input_dir = Path(args.root_dir, "all_input_output")
+# print(f'{input_dir=}')
+# TODO search
+input_dir = Path(args.input_dirs[0])
 
 nproc = 31
 
