@@ -8,7 +8,7 @@ Tested with `GNU gdb (GDB) 8.2`.
 Run this command to compile and run the test program. The expected output is in `test/expected` (`test/expected/analyze_output.txt` should match the console output of `./analyze`).
 
 ```bash
-./analyze test/p00001/C/s000149616.c test/p00001/input_0.txt --compile --infer_output_files -v  # Compile and run test/test.cpp with input test/input.txt; output to logs/ and outputs/
+./analyze test/p00001/C/s000149616.c test/p00001/input_0.txt --compile --infer_output_files -v  # Compile and run s000149616.c with input input_0.txt; output to logs/ and outputs/
 ```
 
 ## How to convert traces to `.jsonl` format
