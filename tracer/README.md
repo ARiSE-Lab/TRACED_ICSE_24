@@ -17,7 +17,7 @@ We use a sequenceizer script to read the XML trace, perform preprocessing, and o
 You should get console output matching `test/expected_c/sequenceize_logs_c_output.txt`.
 
 ```bash
-python sequenceize_logs_c.py --base_dirs . --lang c --src_dirs test --input_dirs test
+python sequenceize_logs.py --base_dirs . --lang c --src_dirs test --input_dirs test
 ```
 
 # C++ tracer
@@ -26,7 +26,7 @@ Command:
 
 ```bash
 ./analyze test/p00001/C++/s000111806.cpp test/p00001/input_0.txt --compile --infer_output_files -v
-python sequenceize_logs_cpp.py --lang cpp --base_dirs . --src_dirs test --input_dirs test
+python sequenceize_logs.py --lang cpp --base_dirs . --src_dirs test --input_dirs test
 ```
 
 Check `test/expected_cpp` for expected output.
