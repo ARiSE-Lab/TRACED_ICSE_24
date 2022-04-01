@@ -1,4 +1,4 @@
-# Java tracer
+# C tracer
 
 Uses GDB (GNU DeBugger). Outputs XML of the program trace to `logs/` and text output of the program `outputs/`.
 Tested with `GNU gdb (GDB) 8.2`.
