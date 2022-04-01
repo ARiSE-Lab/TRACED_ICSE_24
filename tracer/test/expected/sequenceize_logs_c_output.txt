@@ -1,0 +1,54 @@
+Parsing cmd line args
+args=Namespace(base_dirs=['.'], input_dirs=['test/'], lang='c', src_dirs=['test'], test=False)
+0it [00:00, ?it/s]1it [00:00, 1738.93it/s]
+0it [00:00, ?it/s]1it [00:00, 2010.69it/s]1
+1
+foo
+foo{, , }
+[]
+['1', '2']
+['"foo"', '"boo"']
+malformed
+malformed
+['"foo"', ['"boo"', '"goo"']]
+['"printed\\n"', '2']
+['0', '0', '0']
+[['0', '2'], ['1']]
+* modify A[1]
+[('A[1]', '"boo"')]
+* add A[1]
+[('A[1]', '"moo"')]
+* delete A[1]
+[('A[1]', 'deleted')]
+* modify A[0] AND delete A[1]
+[('A[0]', '"moo"'), ('A[1]', 'deleted')]
+{}
+{1, 2}
+{1, <2 truncated>}
+{"foo", "boo"}
+{"foo", {"boo", "goo"}}
+{"printed\n", 2}
+{0, 0, 0}
+{{0, 2}, {1}}
+1
+1
+
+  0%|          | 0/1 [00:00<?, ?it/s]  0%|          | 0/1 [00:00<?, ?it/s, success=1]100%|██████████| 1/1 [00:00<00:00, 164.72it/s, success=1]
+success 1
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 11184.81it/s]
+/work/LAS/weile-lab/benjis/envs/tracers/lib/python3.8/site-packages/numpy/lib/function_base.py:495: RuntimeWarning: Mean of empty slice.
+  avg = a.mean(axis)
+/work/LAS/weile-lab/benjis/envs/tracers/lib/python3.8/site-packages/numpy/core/_methods.py:189: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+incomplete 0
+sequences: {
+  "c": 1
+}
+unique problems: 1
+unique sequences: 1
+unique traces: 1
+average code length: 727.0000
+average trace length except 99th percentile: nan
+average trace length: 2038.0000
+average input length: 47.0000
+average output length: 15.0000

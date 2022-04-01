@@ -1,0 +1,607 @@
+<trace>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="7">
+<variable name="a" age="new">{-75472, 32767, 0, 0, 4196064, 0, 4195504, 0, -75248, 32767}</variable>
+<variable name="i" age="new">0</variable>
+<variable name="MAX" age="new">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="9">
+<variable name="a" age="old">{-75472, 32767, 0, 0, 4196064, 0, 4195504, 0, -75248, 32767}</variable>
+<variable name="i" age="old">0</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="7">
+<variable name="a" age="modified">{1819, 32767, 0, 0, 4196064, 0, 4195504, 0, -75248, 32767}</variable>
+<variable name="i" age="old">0</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="9">
+<variable name="a" age="old">{1819, 32767, 0, 0, 4196064, 0, 4195504, 0, -75248, 32767}</variable>
+<variable name="i" age="modified">1</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="7">
+<variable name="a" age="modified">{1819, 2003, 0, 0, 4196064, 0, 4195504, 0, -75248, 32767}</variable>
+<variable name="i" age="old">1</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="9">
+<variable name="a" age="old">{1819, 2003, 0, 0, 4196064, 0, 4195504, 0, -75248, 32767}</variable>
+<variable name="i" age="modified">2</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="7">
+<variable name="a" age="modified">{1819, 2003, 876, 0, 4196064, 0, 4195504, 0, -75248, 32767}</variable>
+<variable name="i" age="old">2</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="9">
+<variable name="a" age="old">{1819, 2003, 876, 0, 4196064, 0, 4195504, 0, -75248, 32767}</variable>
+<variable name="i" age="modified">3</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="7">
+<variable name="a" age="modified">{1819, 2003, 876, 2840, 4196064, 0, 4195504, 0, -75248, 32767}</variable>
+<variable name="i" age="old">3</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="9">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 4196064, 0, 4195504, 0, -75248, 32767}</variable>
+<variable name="i" age="modified">4</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="7">
+<variable name="a" age="modified">{1819, 2003, 876, 2840, 1723, 0, 4195504, 0, -75248, 32767}</variable>
+<variable name="i" age="old">4</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="9">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 0, 4195504, 0, -75248, 32767}</variable>
+<variable name="i" age="modified">5</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="7">
+<variable name="a" age="modified">{1819, 2003, 876, 2840, 1723, 1673, 4195504, 0, -75248, 32767}</variable>
+<variable name="i" age="old">5</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="9">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 4195504, 0, -75248, 32767}</variable>
+<variable name="i" age="modified">6</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="7">
+<variable name="a" age="modified">{1819, 2003, 876, 2840, 1723, 1673, 3776, 0, -75248, 32767}</variable>
+<variable name="i" age="old">6</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="9">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 0, -75248, 32767}</variable>
+<variable name="i" age="modified">7</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="7">
+<variable name="a" age="modified">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, -75248, 32767}</variable>
+<variable name="i" age="old">7</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="9">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, -75248, 32767}</variable>
+<variable name="i" age="modified">8</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="7">
+<variable name="a" age="modified">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 32767}</variable>
+<variable name="i" age="old">8</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="9">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 32767}</variable>
+<variable name="i" age="modified">9</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="7">
+<variable name="a" age="modified">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">9</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="11">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">10</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="13">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">0</variable>
+<variable name="MAX" age="old">{1, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="11">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">0</variable>
+<variable name="MAX" age="modified">{0, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="13">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">1</variable>
+<variable name="MAX" age="old">{0, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="11">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">1</variable>
+<variable name="MAX" age="old">{0, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="13">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">2</variable>
+<variable name="MAX" age="old">{0, 0, 4196141}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="11">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">2</variable>
+<variable name="MAX" age="modified">{0, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="15">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">3</variable>
+<variable name="MAX" age="old">{0, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="17">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">0</variable>
+<variable name="MAX" age="old">{0, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="19">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">0</variable>
+<variable name="MAX" age="old">{0, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="15">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">0</variable>
+<variable name="MAX" age="modified">{1819, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="17">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">1</variable>
+<variable name="MAX" age="old">{1819, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="19">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">1</variable>
+<variable name="MAX" age="old">{1819, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="15">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">1</variable>
+<variable name="MAX" age="modified">{2003, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="17">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">2</variable>
+<variable name="MAX" age="old">{2003, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="15">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">2</variable>
+<variable name="MAX" age="old">{2003, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="17">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">3</variable>
+<variable name="MAX" age="old">{2003, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="19">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">3</variable>
+<variable name="MAX" age="old">{2003, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="15">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">3</variable>
+<variable name="MAX" age="modified">{2840, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="17">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">4</variable>
+<variable name="MAX" age="old">{2840, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="15">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">4</variable>
+<variable name="MAX" age="old">{2840, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="17">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">5</variable>
+<variable name="MAX" age="old">{2840, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="15">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">5</variable>
+<variable name="MAX" age="old">{2840, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="17">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">6</variable>
+<variable name="MAX" age="old">{2840, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="19">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">6</variable>
+<variable name="MAX" age="old">{2840, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="15">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">6</variable>
+<variable name="MAX" age="modified">{3776, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="17">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">7</variable>
+<variable name="MAX" age="old">{3776, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="15">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">7</variable>
+<variable name="MAX" age="old">{3776, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="17">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">8</variable>
+<variable name="MAX" age="old">{3776, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="15">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">8</variable>
+<variable name="MAX" age="old">{3776, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="17">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">9</variable>
+<variable name="MAX" age="old">{3776, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="15">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">9</variable>
+<variable name="MAX" age="old">{3776, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="22">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">10</variable>
+<variable name="MAX" age="old">{3776, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="24">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">0</variable>
+<variable name="MAX" age="old">{3776, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="26">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">0</variable>
+<variable name="MAX" age="old">{3776, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="28">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">0</variable>
+<variable name="MAX" age="old">{3776, 0, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="22">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">0</variable>
+<variable name="MAX" age="modified">{3776, 1819, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="24">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">1</variable>
+<variable name="MAX" age="old">{3776, 1819, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="26">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">1</variable>
+<variable name="MAX" age="old">{3776, 1819, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="28">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">1</variable>
+<variable name="MAX" age="old">{3776, 1819, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="22">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">1</variable>
+<variable name="MAX" age="modified">{3776, 2003, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="24">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">2</variable>
+<variable name="MAX" age="old">{3776, 2003, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="22">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">2</variable>
+<variable name="MAX" age="old">{3776, 2003, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="24">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">3</variable>
+<variable name="MAX" age="old">{3776, 2003, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="26">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">3</variable>
+<variable name="MAX" age="old">{3776, 2003, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="28">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">3</variable>
+<variable name="MAX" age="old">{3776, 2003, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="22">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">3</variable>
+<variable name="MAX" age="modified">{3776, 2840, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="24">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">4</variable>
+<variable name="MAX" age="old">{3776, 2840, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="22">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">4</variable>
+<variable name="MAX" age="old">{3776, 2840, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="24">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">5</variable>
+<variable name="MAX" age="old">{3776, 2840, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="22">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">5</variable>
+<variable name="MAX" age="old">{3776, 2840, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="24">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">6</variable>
+<variable name="MAX" age="old">{3776, 2840, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="26">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">6</variable>
+<variable name="MAX" age="old">{3776, 2840, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="22">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">6</variable>
+<variable name="MAX" age="old">{3776, 2840, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="24">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">7</variable>
+<variable name="MAX" age="old">{3776, 2840, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="26">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">7</variable>
+<variable name="MAX" age="old">{3776, 2840, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="28">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">7</variable>
+<variable name="MAX" age="old">{3776, 2840, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="22">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">7</variable>
+<variable name="MAX" age="modified">{3776, 2848, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="24">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">8</variable>
+<variable name="MAX" age="old">{3776, 2848, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="22">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">8</variable>
+<variable name="MAX" age="old">{3776, 2848, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="24">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">9</variable>
+<variable name="MAX" age="old">{3776, 2848, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="22">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">9</variable>
+<variable name="MAX" age="old">{3776, 2848, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="32">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">10</variable>
+<variable name="MAX" age="old">{3776, 2848, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="34">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">0</variable>
+<variable name="MAX" age="old">{3776, 2848, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="36">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">0</variable>
+<variable name="MAX" age="old">{3776, 2848, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="38">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">0</variable>
+<variable name="MAX" age="old">{3776, 2848, 0}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="32">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">0</variable>
+<variable name="MAX" age="modified">{3776, 2848, 1819}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="34">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">1</variable>
+<variable name="MAX" age="old">{3776, 2848, 1819}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="36">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">1</variable>
+<variable name="MAX" age="old">{3776, 2848, 1819}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="38">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">1</variable>
+<variable name="MAX" age="old">{3776, 2848, 1819}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="32">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">1</variable>
+<variable name="MAX" age="modified">{3776, 2848, 2003}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="34">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">2</variable>
+<variable name="MAX" age="old">{3776, 2848, 2003}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="32">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">2</variable>
+<variable name="MAX" age="old">{3776, 2848, 2003}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="34">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">3</variable>
+<variable name="MAX" age="old">{3776, 2848, 2003}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="36">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">3</variable>
+<variable name="MAX" age="old">{3776, 2848, 2003}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="38">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">3</variable>
+<variable name="MAX" age="old">{3776, 2848, 2003}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="32">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">3</variable>
+<variable name="MAX" age="modified">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="34">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">4</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="32">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">4</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="34">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">5</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="32">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">5</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="34">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">6</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="36">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">6</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="32">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">6</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="34">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">7</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="36">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">7</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="32">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">7</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="34">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">8</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="32">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">8</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="34">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">9</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="32">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">9</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="42">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">10</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="44">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">0</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="42">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">0</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="44">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">1</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="42">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">1</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="44">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">2</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="42">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">2</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="46">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="modified">3</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+<program_point filename="/tmp/tmp7gd2ieu_/main.c" line="47">
+<variable name="a" age="old">{1819, 2003, 876, 2840, 1723, 1673, 3776, 2848, 1592, 922}</variable>
+<variable name="i" age="old">3</variable>
+<variable name="MAX" age="old">{3776, 2848, 2840}</variable>
+</program_point>
+</trace>

@@ -5,13 +5,17 @@ Tested with `GNU gdb (GDB) 8.2`.
 
 ## How to generate traces
 
-Run this command to compile and run the test program. The expected output is in `test/expected` (`analyze_output.txt` should match the console output of `./analyze`).
+Run this command to compile and run the test program. The expected output is in `test/expected` (`test/expected/analyze_output.txt` should match the console output of `./analyze`).
 
 ```bash
-./analyze test/test.cpp test/input.txt --compile --infer_output_files  # Compile and run test/test.cpp with input test/input.txt; output to logs/ and outputs/
+./analyze test/p00001/C/s000149616.c test/p00001/input_0.txt --compile --infer_output_files -v  # Compile and run test/test.cpp with input test/input.txt; output to logs/ and outputs/
 ```
 
 ## How to convert traces to `.jsonl` format
 
 We use a sequenceizer script to read the XML trace, perform preprocessing, and output `.jsonl` format.
-TODO
+You should get console output matching `test/expected/sequenceize_logs_c_output.txt`.
+
+```bash
+python sequenceize_logs_c.py --base_dirs . --lang c --src_dirs test --input_dirs test
+```

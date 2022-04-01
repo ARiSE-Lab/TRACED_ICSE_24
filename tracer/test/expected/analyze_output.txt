@@ -1,14 +1,13 @@
-$ ./analyze test/test.cpp test/input.txt --compile -v --infer_output_files
-cpp__test_input begin: 2022-03-31T22:16:04.029105
-lang_id='cpp' problem_id='' solution_id='test'
-args.output_file='outputs/cpp__test_input.txt' args.log_file='logs/cpp__test_input.xml'
-args=Namespace(compile=True, debug_mode=False, infer_output_files=True, input_file='/work/LAS/weile-lab/benjis/weile-lab/tracing/trace-modeling/trace_collection_c_cpp/test/input.txt', keep_tmp=False, log_file='/work/LAS/weile-lab/benjis/weile-lab/tracing/trace-modeling/trace_collection_c_cpp/logs/cpp__test_input.xml', output_file='/work/LAS/weile-lab/benjis/weile-lab/tracing/trace-modeling/trace_collection_c_cpp/outputs/cpp__test_input.txt', src_file='test/test.cpp', timeout=10, verbose=True) init_gdb='/work/LAS/weile-lab/benjis/weile-lab/tracing/trace-modeling/trace_collection_c_cpp/init.gdb'
-compile_cmd_args_str='g++ -g -O0 -fno-inline-functions /tmp/tmplto4ekip/main.cpp -o /tmp/tmplto4ekip/main'
+c_p00001_s000149616_input_0 begin: 2022-03-31T22:47:41.183337
+lang_id='c' problem_id='p00001' solution_id='s000149616'
+args.output_file='outputs/c_p00001_s000149616_input_0.txt' args.log_file='logs/c_p00001_s000149616_input_0.xml'
+args=Namespace(compile=True, debug_mode=False, infer_output_files=True, input_file='/work/LAS/weile-lab/benjis/weile-lab/tracing/trace-modeling/trace_collection_c_cpp/test/p00001/input_0.txt', keep_tmp=False, log_file='/work/LAS/weile-lab/benjis/weile-lab/tracing/trace-modeling/trace_collection_c_cpp/logs/c_p00001_s000149616_input_0.xml', output_file='/work/LAS/weile-lab/benjis/weile-lab/tracing/trace-modeling/trace_collection_c_cpp/outputs/c_p00001_s000149616_input_0.txt', src_file='test/p00001/C/s000149616.c', timeout=10, verbose=True) init_gdb='/work/LAS/weile-lab/benjis/weile-lab/tracing/trace-modeling/trace_collection_c_cpp/init.gdb'
+compile_cmd_args_str='gcc -g -O0 -fno-inline-functions -std=c99 /tmp/tmp8j37f4b9/main.c -o /tmp/tmp8j37f4b9/main'
 proc.stdout:
 
-trace_cmd_args_str='gdb /tmp/tmplto4ekip/main -batch -nh -ex "set logging file /dev/null" -ex "set logging redirect on" -ex "set logging on" -ex "set print elements unlimited" -ex "set print repeats unlimited" -ex "set max-value-size unlimited" -ex "source /work/LAS/weile-lab/benjis/weile-lab/tracing/trace-modeling/trace_collection_c_cpp/trace_asm.py" -ex "start < /work/LAS/weile-lab/benjis/weile-lab/tracing/trace-modeling/trace_collection_c_cpp/test/input.txt > /work/LAS/weile-lab/benjis/weile-lab/tracing/trace-modeling/trace_collection_c_cpp/outputs/cpp__test_input.txt" -ex "trace-asm /work/LAS/weile-lab/benjis/weile-lab/tracing/trace-modeling/trace_collection_c_cpp/logs/cpp__test_input.xml -v"'
+trace_cmd_args_str='gdb /tmp/tmp8j37f4b9/main -batch -nh -ex "set logging file /dev/null" -ex "set logging redirect on" -ex "set logging on" -ex "set print elements unlimited" -ex "set print repeats unlimited" -ex "set max-value-size unlimited" -ex "source /work/LAS/weile-lab/benjis/weile-lab/tracing/trace-modeling/trace_collection_c_cpp/trace_asm.py" -ex "start < /work/LAS/weile-lab/benjis/weile-lab/tracing/trace-modeling/trace_collection_c_cpp/test/p00001/input_0.txt > /work/LAS/weile-lab/benjis/weile-lab/tracing/trace-modeling/trace_collection_c_cpp/outputs/c_p00001_s000149616_input_0.txt" -ex "trace-asm /work/LAS/weile-lab/benjis/weile-lab/tracing/trace-modeling/trace_collection_c_cpp/logs/c_p00001_s000149616_input_0.xml -v"'
 process stdout:
 
-cpp__test_input end: 2022-03-31T22:16:04.691306
-cpp__test_input elapsed seconds: 0.662201
-cpp__test_input exit code: 0
+c_p00001_s000149616_input_0 end: 2022-03-31T22:47:41.532134
+c_p00001_s000149616_input_0 elapsed seconds: 0.348797
+c_p00001_s000149616_input_0 exit code: 0
