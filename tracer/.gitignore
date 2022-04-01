@@ -2,12 +2,6 @@
 /*.txt
 /*.json
 
-/test
-!/test/
-/test/test
-/test/output.txt
-/test/log.xml
-
 /logs
 /outputs
 /log.xml
