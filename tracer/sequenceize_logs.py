@@ -59,6 +59,7 @@ def parse_args():
     parser.add_argument('--begin', type=int)
     parser.add_argument('--end', type=int)
     parser.add_argument('--limit_solutions', type=int)
+    parser.add_argument('--nproc', type=int, default=31)
     return parser.parse_args(cmd_args)
 
 args = parse_args()
@@ -94,7 +95,7 @@ src_dir = Path(args.src_dirs[0])
 # TODO search
 input_dir = Path(args.input_dirs[0])
 
-nproc = 31
+nproc = args.nproc
 
 import pandas as pd
 all_runs = list(sorted(set(log_files.keys()).intersection(set(output_files.keys()))))
@@ -127,7 +128,7 @@ with Pool(nproc) as pool, open(sequences_filename, 'w') as sf:
             lens.append(sequence_str)
             sf.write(sequence_str + '\n')
             outcomes[sequence["outcome"]] += 1
-            if i % 1000 == 0:
+            if i % 100 == 0:
                 pbar.set_postfix(outcomes)
             if sequence["outcome"] == 'error' and printed_error < 10:
                 print(f'Error {printed_error}:', json.dumps(sequence, indent=2))
