@@ -15,7 +15,7 @@ from get_trace import *
 
 # sequences_got = 0
 
-def get_sequence(lang, problem, solution, input_id, src_file, src_file_relative, log_file, input_file, output_file):
+def get_sequence(lang, problem, solution, input_id, src_file, log_file, input_file, output_file):
     # lang = row["lang"]
     # problem = row["problem"]
     # solution = row["solution"]
@@ -24,7 +24,7 @@ def get_sequence(lang, problem, solution, input_id, src_file, src_file_relative,
     # log_file = row["log_file"]
     # output_file = row["output_file"]
 
-    verbose = True
+    verbose = False
     # global sequences_got
     # verbose = sequences_got < 5
     # sequences_got += 1
@@ -64,7 +64,7 @@ def get_sequence(lang, problem, solution, input_id, src_file, src_file_relative,
         sequence["input_no"] = input_id
 
         # Find source file
-        sequence["filepath"] = str(src_file_relative)
+        sequence["filepath"] = str(src_file.relative_to(src_file.parent.parent.parent))
 
         # Get source code
         with open(src_file, encoding='utf-8', errors='replace') as f:
