@@ -95,8 +95,9 @@ def get_trace(log_file, lang):
         states.append((lineno, current_state))
     state_words = ""
     for lineno, states in states:
-        if not any(states):
-            continue
+        # NOTE: This used to remove all lines with no modified variables, but we now want to include them.
+        # if not any(states):
+        #     continue
         if len(state_words) > 0:
             state_words += ' '
         state_words += f'L{lineno}'
@@ -104,6 +105,109 @@ def get_trace(log_file, lang):
             age, name, text = state
             state_words += f' {age} var: {name} = {text}'
     return state_words, any_modified
+
+
+# %%
+def test_debug_include_empty_lines():
+    """
+    Example: p00000/C++/s160425098.cpp
+    Old trace:
+
+    L6 new var: i = 0
+    L6 new var: j = 4196144 modified var: i = 1  <-- new var, then same line with modified var. Should compress into one.
+    L8 modified var: j = 1
+    L8 modified var: j = 2
+    L8 modified var: j = 3
+    L8 modified var: j = 4
+    L8 modified var: j = 5
+    L8 modified var: j = 6
+    L8 modified var: j = 7
+    L8 modified var: j = 8
+    L8 modified var: j = 9
+    L6 new var: j = 10 modified var: i = 2
+    L8 modified var: j = 1
+    L8 modified var: j = 2
+    L8 modified var: j = 3
+    L8 modified var: j = 4
+    L8 modified var: j = 5
+    L8 modified var: j = 6
+    L8 modified var: j = 7
+    L8 modified var: j = 8
+    L8 modified var: j = 9
+    L6 new var: j = 10 modified var: i = 3
+    L8 modified var: j = 1
+    L8 modified var: j = 2
+    L8 modified var: j = 3
+    L8 modified var: j = 4
+    L8 modified var: j = 5
+    L8 modified var: j = 6
+    L8 modified var: j = 7
+    L8 modified var: j = 8
+    L8 modified var: j = 9
+    L6 new var: j = 10 modified var: i = 4
+    L8 modified var: j = 1
+    L8 modified var: j = 2
+    L8 modified var: j = 3
+    L8 modified var: j = 4
+    L8 modified var: j = 5
+    L8 modified var: j = 6
+    L8 modified var: j = 7
+    L8 modified var: j = 8
+    L8 modified var: j = 9
+    L6 new var: j = 10 modified var: i = 5
+    L8 modified var: j = 1
+    L8 modified var: j = 2
+    L8 modified var: j = 3
+    L8 modified var: j = 4
+    L8 modified var: j = 5
+    L8 modified var: j = 6
+    L8 modified var: j = 7
+    L8 modified var: j = 8
+    L8 modified var: j = 9
+    L6 new var: j = 10 modified var: i = 6
+    L8 modified var: j = 1
+    L8 modified var: j = 2
+    L8 modified var: j = 3
+    L8 modified var: j = 4
+    L8 modified var: j = 5
+    L8 modified var: j = 6
+    L8 modified var: j = 7
+    L8 modified var: j = 8
+    L8 modified var: j = 9
+    L6 new var: j = 10 modified var: i = 7
+    L8 modified var: j = 1
+    L8 modified var: j = 2
+    L8 modified var: j = 3
+    L8 modified var: j = 4
+    L8 modified var: j = 5
+    L8 modified var: j = 6
+    L8 modified var: j = 7
+    L8 modified var: j = 8
+    L8 modified var: j = 9
+    L6 new var: j = 10 modified var: i = 8
+    L8 modified var: j = 1
+    L8 modified var: j = 2
+    L8 modified var: j = 3
+    L8 modified var: j = 4
+    L8 modified var: j = 5
+    L8 modified var: j = 6
+    L8 modified var: j = 7
+    L8 modified var: j = 8
+    L8 modified var: j = 9
+    L6 new var: j = 10 modified var: i = 9
+    L8 modified var: j = 1
+    L8 modified var: j = 2
+    L8 modified var: j = 3
+    L8 modified var: j = 4
+    L8 modified var: j = 5
+    L8 modified var: j = 6
+    L8 modified var: j = 7
+    L8 modified var: j = 8
+    L8 modified var: j = 9
+    """
+    print()
+    trace, mod = get_trace("cpp/logs/cpp_p00000_s160425098_input_0.xml", "cpp")
+    print(trace.replace(' L', '\nL'))
 
 
 # In[106]:
