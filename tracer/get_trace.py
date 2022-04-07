@@ -7,6 +7,9 @@ import xml.etree.ElementTree as ET
 import re
 import io
 from text_utils import *
+from pathlib import Path
+import json
+import difflib
 
 def get_trace(log_file, lang):
     # print("trace", log_file, lang)
@@ -208,6 +211,79 @@ def test_debug_include_empty_lines():
     print()
     trace, mod = get_trace("cpp/logs/cpp_p00000_s160425098_input_0.xml", "cpp")
     print(trace.replace(' L', '\nL'))
+
+
+# %%
+def test_debug_include_empty_lines_cases():
+    # test_files = [
+    #     # Files from p00000
+    #     "p00000/C++/s667847559.cpp",
+    #     "p00000/C++/s160425098.cpp",
+    #     "p00000/C++/s682094990.cpp",
+    #     # Files from p00001
+    #     "p00001/C++/s488689018.cpp",
+    #     "p00001/C++/s488689018.cpp",
+    #     "p00001/C++/s109465441.cpp",
+    # ]
+    test_data = []
+    with open('cpp_sequences/all_sequences_langC++_head1000.jsonl') as f:
+        for i in range(503):
+            text = f.readline()
+            if i in (0, 1, 2, 500, 501, 502):
+                test_data.append(json.loads(text))
+    data_dir = Path("Project_CodeNet/data")
+
+    print()
+    for i, data in enumerate(test_data):
+        print(f'Case {i}:')
+        print('Code:')
+        print(data["src"])
+        print()
+        prob, lang, sol = data["filepath"].split('/')
+        sol = sol.split('.')[0]
+        input_file = data["input_no"]
+        trace, mod = get_trace(f"cpp/logs/cpp_{prob}_{sol}_{input_file}.xml", "cpp")
+        old_trace = data["trace"].replace(' L', '\nL')
+        new_trace = trace.replace(' L', '\nL')
+        print('Diff:')
+        print()
+        differ = difflib.Differ()
+        t1 = []
+        t2 = []
+        for line in differ.compare(old_trace.splitlines(keepends=True), new_trace.splitlines(keepends=True)):
+            marker = line[0]
+            if marker == " ":
+                # line is same in both
+                t1.append(line)
+                t2.append(line)
+
+            elif marker == "-":
+                # line is only on the left
+                t1.append(line)
+                t2.append("")
+
+            elif marker == "+":
+                # line is only on the right
+                t1.append("")
+                t2.append(line)
+        max_t1 = max(len(t) for t in t1)
+        max_t2 = max(len(t) for t in t2)
+        for tt1, tt2 in zip(t1, t2):
+            if len(tt1) == 0:
+                tt1 = " " * (max_t1-1)
+            else:
+                tt1 = tt1.rjust(max_t1, " ")
+                tt1 = tt1.rstrip()
+            if len(tt2) == 0:
+                tt2 = " " * (max_t2-1)
+            else:
+                tt2 = tt2.rjust(max_t2, " ")
+                tt2 = tt2.rstrip()
+            print(f'{tt1} | {tt2}')
+        # print('New trace:')
+        # print(new_trace)
+        # print('Old trace:')
+        # print(old_trace)
 
 
 # In[106]:
