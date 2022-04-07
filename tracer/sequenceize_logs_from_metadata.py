@@ -11,16 +11,20 @@ from get_sequence import get_sequence
 import json
 from collections import defaultdict
 from multiprocessing import Pool
+from joblib import Parallel
+import functools
 
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--lang')
 parser.add_argument('--base_dirs', nargs='+')
 parser.add_argument('--src_dirs', nargs='+')
-parser.add_argument('--input_dir', default="../../all_input_output")
+parser.add_argument('--input_dir', default="all_input_output")
+parser.add_argument('--metadata_dir', default="Project_CodeNet/metadata")
 parser.add_argument('--begin_problem', type=int, default=0)
 parser.add_argument('--end_problem', type=int, default=4052)
 parser.add_argument('--limit_solutions', type=int, default=500)
+parser.add_argument('--limit_sequences', type=int)
 parser.add_argument('--nproc', type=int, default=1)
 args = parser.parse_args()
 
@@ -44,8 +48,10 @@ src_dirs = [Path(src_dir) for src_dir in args.src_dirs]
 log_dirs = [Path(base_dir) / "logs" for base_dir in args.base_dirs]
 output_dirs = [Path(base_dir) / "outputs" for base_dir in args.base_dirs]
 
-metadata_dir = Path("../../Project_CodeNet/metadata")
-input_dir = Path("../../all_input_output")
+# metadata_dir = Path("../../Project_CodeNet/metadata")
+# input_dir = Path("../../all_input_output")
+metadata_dir = Path(args.metadata_dir)
+input_dir = Path(args.input_dir)
 
 def get_sequence_all_inputs(lang, problem, solution):
     filext = lang_to_filext[lang]
@@ -58,6 +64,7 @@ def get_sequence_all_inputs(lang, problem, solution):
 
     if len(input_files) == 0:
         input_files = [None]
+    sequences_to_return = []
     for input_file in input_files:
         if input_file is None:
             input_id = None
@@ -74,13 +81,30 @@ def get_sequence_all_inputs(lang, problem, solution):
             if output_file.exists():
                 break
         
-        yield get_sequence(filext, problem, solution, input_id, src_file, log_file, input_file, output_file)
+        # yield get_sequence(filext, problem, solution, input_id, src_file, log_file, input_file, output_file)
+        sequences_to_return.append(get_sequence(filext, problem, solution, input_id, src_file, log_file, input_file, output_file))
+    return sequences_to_return
         
+def get_sequence_tuple(t):
+    return get_sequence_all_inputs(*t)
+
 def get_sequence_row(row):
     yield from get_sequence_all_inputs(row["language"], row["problem_id"], row["submission_id"])
 
+# def abortable_worker(func, *args):
+#     """"https://stackoverflow.com/a/29495039/8999671"""
+#     timeout = 10
+#     p = ThreadPool(1)
+#     res = p.apply_async(func, args=args)
+#     try:
+#         out = res.get(timeout)  # Wait timeout seconds for func to complete.
+#         return out
+#     except multiprocessing.TimeoutError:
+#         return None
+
 sequences_filename = f"sequences_lang{args.lang}_from{args.begin_problem}_to{args.end_problem}_limit{args.limit_solutions}.jsonl"
-with Pool(args.nproc) as pool, open(sequences_filename, 'w') as sf:
+#with Pool(args.nproc) as pool, open(sequences_filename, 'w') as sf:
+with open(sequences_filename, 'w') as sf:
     for problem_num in range(args.begin_problem, args.end_problem+1):
         problem_csv = metadata_dir / f'p{str(problem_num).rjust(5, "0")}.csv'
 
@@ -92,24 +116,44 @@ with Pool(args.nproc) as pool, open(sequences_filename, 'w') as sf:
         memory_mb = float(process.memory_info().rss) / 10e6
 
         num_sequences = 0
+        num_success_sequences = 0
         break_all = False
+        print()
         print(f'{problem_csv.name}, {total=}, {filtered=}, {excluded=}, {memory_mb=:.2f}')
         postfix = defaultdict(int)
         num_success = 0
-        with tqdm.tqdm(df.iterrows(), total=len(df), desc=problem_csv.name) as pbar:
-            for i, row in pbar:
-                sequences = get_sequence_row(row)
+        # with tqdm.tqdm(df.iterrows(), total=len(df), desc=problem_csv.name) as pbar:
+        #     for sequences in pool.imap(get_sequence_all_inputs, zip(df["language"], df["problem_id"], df["submission_id"])):
+            # for i, row in pbar:
+                # sequences = get_sequence_row(row)
+        fn = functools.partial(abortable_worker, get_sequence_tuple)
+        #with Pool(args.nproc) as pool, tqdm.tqdm(pool.imap_unordered(get_sequence_tuple, zip(df["language"], df["problem_id"], df["submission_id"])), total=len(df)) as pbar:
+        with Pool(args.nproc) as pool, tqdm.tqdm(pool.imap(get_sequence_tuple, zip(df["language"], df["problem_id"], df["submission_id"])), total=len(df)) as pbar:
+        #try:
+        #with tqdm.tqdm(Parallel(n_jobs=args.nproc, timeout=1.0)(delayed(get_sequence_all_items)(*t) for t in zip(df["language"], df["problem_id"], df["submission_id"])), total=len(df)) as pbar:
+            for i, sequences in enumerate(pbar):
+                print('sequence', i)
+                if sequences is None:
+                    postfix["timeout"] += 1
+                had_success = False
                 for sequence in sequences:
                     sequence_str = json.dumps(sequence)
                     postfix[sequence["outcome"]] += 1
                     if sequence["outcome"] == "success":
+                        had_success = True
                         sf.write(sequence_str + '\n')
                         num_success += 1
-                        if num_success >= args.limit_solutions:
+                        if args.limit_sequences is not None and num_success >= args.limit_sequences:
                             break_all = True
                             break
+                if had_success:
+                    num_success_sequences += 1
+                if args.limit_solutions is not None and num_success_sequences >= args.limit_solutions:
+                    break_all = True
                 pbar.set_postfix(postfix)
                 if break_all:
+                    print('terminating')
+                    pool.terminate()
                     break
                 
 
