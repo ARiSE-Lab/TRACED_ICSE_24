@@ -225,26 +225,56 @@ def test_debug_include_empty_lines_cases():
     #     "p00001/C++/s488689018.cpp",
     #     "p00001/C++/s109465441.cpp",
     # ]
+    lang_to_path = {
+        "C++": "cpp",
+        "C": "c",
+        "Java": "java",
+    }
+    def get_trace_for_data(data):
+        prob, lang, sol = data["filepath"].split('/')
+        langpath = lang_to_path[lang]
+        sol = sol.split('.')[0]
+        input_file = data["input_no"]
+        if not input_file.startswith("input_"):
+            input_file = "input_" + input_file
+        return get_trace(f"{langpath}/logs/{langpath}_{prob}_{sol}_{input_file}.xml", langpath)
+
     test_data = []
     with open('cpp_sequences/all_sequences_langC++_head1000.jsonl') as f:
         for i in range(503):
             text = f.readline()
             if i in (0, 1, 2, 500, 501, 502):
                 test_data.append(json.loads(text))
+    with open('c_java_sequences/c_sequences_head1000.jsonl') as f:
+        for i in range(10):
+            text = f.readline()
+            if i in (1, 2, 3, 4, 5, 6):
+                test_data.append(json.loads(text))
+    with open('c_java_sequences/java_sequences_head1000.jsonl') as f:
+        for i in range(1000):
+            text = f.readline()
+            try:
+                data = json.loads(text)
+                get_trace_for_data(data)
+                test_data.append(data)
+            except (ET.ParseError, KeyError) as e:
+                pass
+            if len(test_data) == 18:
+                break
     data_dir = Path("Project_CodeNet/data")
 
     print()
     for i, data in enumerate(test_data):
-        print(f'Case {i}:')
+        trace, mod = get_trace_for_data(data)
+        
+        old_trace = data["trace"].replace(' L', '\nL')
+        new_trace = trace.replace(' L', '\nL')
+        
+        print(f'Case {i}: {data["filepath"]} {data["input_no"]}')
         print('Code:')
         print(data["src"])
         print()
-        prob, lang, sol = data["filepath"].split('/')
-        sol = sol.split('.')[0]
-        input_file = data["input_no"]
-        trace, mod = get_trace(f"cpp/logs/cpp_{prob}_{sol}_{input_file}.xml", "cpp")
-        old_trace = data["trace"].replace(' L', '\nL')
-        new_trace = trace.replace(' L', '\nL')
+
         print('Diff:')
         print()
         differ = difflib.Differ()
