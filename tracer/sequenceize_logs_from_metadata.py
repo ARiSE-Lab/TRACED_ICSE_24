@@ -116,7 +116,11 @@ with open(sequences_filename, 'w') as sf:
 
         df = pd.read_csv(str(problem_csv))
         total = len(df)
-        df = df[(df["language"] == args.lang) & (df["status"].isin(["Accepted", "Wrong Answer", "WA: Presentation Error"]))]
+        # Categories are too narrow - expand to all bug types and just throw away if log is not present or not valid
+        #df = df[(df["language"] == args.lang) & (df["status"].isin(["Accepted", "Wrong Answer", "WA: Presentation Error"]))]
+        # Used for debug - get complement of previously too-narrow categories
+        # df = df[(df["language"] == args.lang) & (~df["status"].isin(["Accepted", "Wrong Answer", "WA: Presentation Error"]))]
+        df = df[df["language"] == args.lang]
         filtered = len(df)
         excluded = total - filtered
         memory_mb = float(process.memory_info().rss) / 10e6
