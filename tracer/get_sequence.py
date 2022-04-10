@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 import traceback
 import json
+import os
 
 from get_trace import *
 
@@ -59,12 +60,15 @@ def get_sequence(lang, problem, solution, input_id, src_file, log_file, input_fi
             sequence["outcome"] = "missing_src"
             return sequence
         # print(run_id, log_file, output_file)
-
-        sequence["lang"] = lang
-        sequence["input_no"] = input_id
-
-        # Find source file
-        sequence["filepath"] = str(src_file.relative_to(src_file.parent.parent.parent))
+        if os.path.getsize(log_file) > 1e9:
+            sequence["outcome"] = "toobig_log"
+            return sequence
+        if os.path.getsize(src_file) > 1e9:
+            sequence["outcome"] = "missing_src"
+            return sequence
+        if os.path.getsize(output_file) > 1e9:
+            sequence["outcome"] = "missing_output"
+            return sequence
 
         # Get source code
         with open(src_file, encoding='utf-8', errors='replace') as f:
