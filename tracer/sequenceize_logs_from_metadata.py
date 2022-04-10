@@ -149,9 +149,10 @@ with open(sequences_filename, 'w') as sf:
                 for sequence in sequences:
                     sequence_str = json.dumps(sequence)
                     postfix[sequence["outcome"]] += 1
+                    sf.write(sequence_str + '\n')
                     if sequence["outcome"] == "success":
                         had_success = True
-                        sf.write(sequence_str + '\n')
+                        #sf.write(sequence_str + '\n')
                         num_success += 1
                         if args.limit_sequences is not None and num_success >= args.limit_sequences:
                             break_all = True
