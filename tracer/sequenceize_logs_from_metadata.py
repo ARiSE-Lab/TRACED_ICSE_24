@@ -11,7 +11,6 @@ from get_sequence import get_sequence
 import json
 from collections import defaultdict
 from multiprocessing import Pool
-from joblib import Parallel
 import functools
 
 import argparse
@@ -26,9 +25,16 @@ parser.add_argument('--end_problem', type=int, default=4052)
 parser.add_argument('--limit_solutions', type=int, default=500)
 parser.add_argument('--limit_sequences', type=int)
 parser.add_argument('--nproc', type=int, default=1)
+parser.add_argument('--output', type=str)
 args = parser.parse_args()
 
 print(f"{args=}")
+
+if args.output is not None:
+    sequence_output_dir = Path(args.output)
+    sequence_output_dir.mkdir(parents=True, exist_ok=True)
+else:
+    sequence_output_dir = Path.cwd()
 
 # get and json-ize sequences
 
