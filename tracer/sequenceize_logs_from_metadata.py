@@ -139,10 +139,11 @@ with open(sequences_filename, 'w') as sf:
         fn = functools.partial(abortable_worker, get_sequence_tuple)
         #with Pool(args.nproc) as pool, tqdm.tqdm(pool.imap_unordered(get_sequence_tuple, zip(df["language"], df["problem_id"], df["submission_id"])), total=len(df)) as pbar:
         with Pool(args.nproc) as pool, tqdm.tqdm(pool.imap(get_sequence_tuple, zip(df["language"], df["problem_id"], df["submission_id"])), total=len(df)) as pbar:
+        #with tqdm.tqdm((get_sequence_tuple(t) for t in zip(df["language"], df["problem_id"], df["submission_id"])), total=len(df)) as pbar:
         #try:
         #with tqdm.tqdm(Parallel(n_jobs=args.nproc, timeout=1.0)(delayed(get_sequence_all_items)(*t) for t in zip(df["language"], df["problem_id"], df["submission_id"])), total=len(df)) as pbar:
             for i, sequences in enumerate(pbar):
-                print('sequence', i)
+                # print('sequence', i)
                 if sequences is None:
                     postfix["timeout"] += 1
                 had_success = False
