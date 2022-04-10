@@ -33,6 +33,12 @@ def get_sequence(lang, problem, solution, input_id, src_file, log_file, input_fi
     # print(run_id)
     sequence = {}
     try:
+        sequence["lang"] = lang
+        sequence["input_no"] = input_id
+
+        # Find source file
+        sequence["filepath"] = str(src_file.relative_to(src_file.parent.parent.parent))
+
         # lang, problem, solution, input_id = run_id
         if verbose:
             print(lang, problem, solution, input_id)
@@ -81,6 +87,7 @@ def get_sequence(lang, problem, solution, input_id, src_file, log_file, input_fi
         with open(input_file, encoding='utf-8', errors='replace') as f:
             sequence["input"] = f.read()
         output_file = output_file
+        
         with open(output_file, encoding='utf-8', errors='replace') as f:
             sequence["output"] = f.read()
         
