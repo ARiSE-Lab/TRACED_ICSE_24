@@ -97,18 +97,18 @@ def get_sequence_tuple(t):
 def get_sequence_row(row):
     yield from get_sequence_all_inputs(row["language"], row["problem_id"], row["submission_id"])
 
-# def abortable_worker(func, *args):
-#     """"https://stackoverflow.com/a/29495039/8999671"""
-#     timeout = 10
-#     p = ThreadPool(1)
-#     res = p.apply_async(func, args=args)
-#     try:
-#         out = res.get(timeout)  # Wait timeout seconds for func to complete.
-#         return out
-#     except multiprocessing.TimeoutError:
-#         return None
+def abortable_worker(func, *args):
+    """"https://stackoverflow.com/a/29495039/8999671"""
+    timeout = 10
+    p = ThreadPool(1)
+    res = p.apply_async(func, args=args)
+    try:
+        out = res.get(timeout)  # Wait timeout seconds for func to complete.
+        return out
+    except multiprocessing.TimeoutError:
+        return None
 
-sequences_filename = f"sequences_lang{args.lang}_from{args.begin_problem}_to{args.end_problem}_limit{args.limit_solutions}.jsonl"
+sequences_filename = sequence_output_dir / f"sequences_lang{args.lang}_from{args.begin_problem}_to{args.end_problem}_limit{args.limit_solutions}.jsonl"
 #with Pool(args.nproc) as pool, open(sequences_filename, 'w') as sf:
 with open(sequences_filename, 'w') as sf:
     for problem_num in range(args.begin_problem, args.end_problem+1):
