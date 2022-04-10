@@ -9,6 +9,12 @@ import copy
 from datetime import datetime
 import time
 
+filext_to_lang = {
+    "c": "C",
+    "cpp": "C++",
+    "java": "Java",
+}
+lang_to_filext = {v: k for k, v in filext_to_lang.items()}
 
 def main(args):
     compile_envs = copy.deepcopy(os.environ)
@@ -130,9 +136,10 @@ if __name__ == '__main__':
     problem_id = os.path.basename(
         os.path.dirname(os.path.dirname(args.src_file)))
     solution_id, _ = os.path.splitext(os.path.basename(args.src_file))
-    lang_id = args.src_file[args.src_file.rfind('.')+1:]
+    lang_id = filext_to_lang[args.src_file[args.src_file.rfind('.')+1:]]
     input_id, _ = os.path.splitext(os.path.basename(args.input_file))
-    run_id = lang_id + '_' + problem_id + '_' + solution_id + '_' + input_id
+    trace_dir = os.path.join('trace', problem_id, lang_id)
+    run_id = os.path.join(trace_dir, f'{solution_id}_{input_id}')
 
     begin = datetime.now()
     if args.verbose:
@@ -141,14 +148,9 @@ if __name__ == '__main__':
     if args.infer_output_files:
         if args.verbose:
             print(f'{lang_id=} {problem_id=} {solution_id=}')
-        args.output_file = os.path.join(
-            'outputs', run_id + '.txt')
-        args.log_file = os.path.join(
-            'logs', run_id + '.xml')
-        if not os.path.exists('outputs'):
-            os.mkdir('outputs')
-        if not os.path.exists('logs'):
-            os.mkdir('logs')
+        os.makedirs(trace_dir, exist_ok=True)
+        args.output_file = run_id + '.txt'
+        args.log_file = run_id + '.xml'
         if args.verbose:
             print(f'{args.output_file=} {args.log_file=}')
 
