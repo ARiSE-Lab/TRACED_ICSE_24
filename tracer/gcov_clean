@@ -1,0 +1,5 @@
+#!/bin/bash
+filename="$(basename $1 2>/dev/null)"
+filename_without_ext="${filename%.*}"
+ls $filename_without_ext*.gcda $filename_without_ext*.gcno $filename*.gcov.json $filename*.gcov.json.gz 2>/dev/null
+exec rm -f $filename_without_ext*.gcda $filename_without_ext*.gcno $filename*.gcov.json $filename*.gcov.json.gz
