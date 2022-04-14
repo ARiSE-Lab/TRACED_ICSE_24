@@ -9,6 +9,17 @@ import subprocess
 import shutil
 import json
 from collections import defaultdict
+import sys
+import logging
+from multiprocessing import Pool
+
+## params
+sample_problems = 5
+sample_from_each_lang = 50
+## params
+
+logging.basicConfig(level=logging.DEBUG if sample_problems <= 5 and sample_from_each_lang <= 5 else logging.INFO)
+log = logging.getLogger()
 
 
 filext_to_lang = {
@@ -21,10 +32,40 @@ lang_to_filext = {v: k for k, v in filext_to_lang.items()}
 base_dir = Path("../Project_CodeNet")
 input_dir = Path("../all_input_output")
 metadata_dir = base_dir / "metadata"
-out_dir = Path("instrumented_output")
 new_src_dir = Path("../Project_CodeNet_full2/Project_CodeNet/data")
+out_dir = Path("instrumented_output")
+exe_dir = Path("instrumented_exes")
+out_metadata_dir = Path("instrumented_metadata")
+out_metadata_dir.mkdir(exist_ok=True, parents=True)
 
 enabled_languages = "C C++".split()
+
+def clean_coverage(submission_id):
+    for of in Path.cwd().glob(f"{submission_id}*.gc*"):
+        of.unlink()
+
+def compile_coverage(src_filepath, exe_filepath):
+    if src_filepath.name.endswith(".c"):
+        cc = "gcc"
+    if src_filepath.name.endswith(".cpp"):
+        cc = "g++"
+    proc = subprocess.run(f"{cc} --coverage {src_filepath} -o {exe_filepath}", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    if proc.stdout:
+        log.debug(f"compile {src_filepath} -> {exe_filepath} stdout: {proc.stderr}")
+    if proc.stderr:
+        log.debug(f"compile {src_filepath} -> {exe_filepath} stderr: {proc.stderr}")
+
+def run_input(exe_filepath, infile, outfile=sys.stdout):
+    proc = subprocess.run(f"./{exe_filepath}", stdin=infile, stdout=outfile, stderr=subprocess.PIPE, text=True, timeout=10)
+    if proc.stderr:
+        log.debug(f"run {exe_filepath} stderr: {proc.stderr}")
+    return proc
+
+def run_gcov(src_filename, outfile=sys.stdout):
+    proc = subprocess.run(f"gcov -b -c {src_filename}", shell=True, check=True, stdout=outfile, stderr=subprocess.PIPE, text=True)
+    if proc.stderr:
+        log.debug(f"gcov {src_filename} stderr: {proc.stderr}")
+    return proc
 
 def do_one(problem_num):
     problem_name = 'p' + str(problem_num).rjust(5, "0")
@@ -34,44 +75,81 @@ def do_one(problem_num):
     total = len(df)
     df = df[df["language"].isin(enabled_languages)]
 
-    df = pd.concat((group.head(1) for lang, group in df.groupby("language"))) # NOTE: for debug, get 1 from each eligible language
+    df = pd.concat((group.head(sample_from_each_lang) for lang, group in df.groupby("language"))) # NOTE: for debug, get 1 from each eligible language
+    df["outcome"] = "unknown"
+    log.info(f"covering {problem_name} {len(df)=}")
 
     for i, row in df.iterrows():
         try:
-            src_file = new_src_dir / row["problem_id"] / row["language"] / (row["submission_id"] + '.' + lang_to_filext[row["language"]])
-            print("covering", src_file)
-            assert src_file.exists(), src_file
-            input_file = sorted((input_dir / row["problem_id"]).glob("input_*.txt"))[0]
-            # Measure coverage
-            cmd = f"./gcov_generate {src_file} {input_file}"
-            print(cmd)
-            proc = subprocess.run(cmd, shell=True, timeout=10)
-            if proc.returncode == 0:
-                yield "success"
-            elif proc.returncode == 1:
-                yield "bad arguments"
-            elif proc.returncode == 2:
-                yield "clean error"
-            elif proc.returncode == 3:
-                yield "compile error"
-            elif proc.returncode == 4:
-                yield "gcov error"
+            src_filepath = new_src_dir / row["problem_id"] / row["language"] / (row["submission_id"] + '.' + lang_to_filext[row["language"]])
+            log.debug(f"covering {src_filepath}")
+            assert src_filepath.exists(), src_filepath
+
+            exe_filepath = exe_dir / row["problem_id"] / row["language"] / row["submission_id"]
+            exe_filepath.parent.mkdir(exist_ok=True, parents=True)
+            try:
+                compile_coverage(src_filepath, exe_filepath)
+            except subprocess.CalledProcessError as e:
+                log.debug(f"outcome: compile error\n{traceback.format_exc()}")
+                df.at[i, "outcome"] = "compile_error"
+                continue
+
             sub_out_dir = out_dir / row["problem_id"] / row["language"] / row["submission_id"]
             sub_out_dir.mkdir(exist_ok=True, parents=True)
-            for of in Path.cwd().glob("*.gc*"):
-                shutil.move(of, sub_out_dir / of.name)
+
+            for input_filepath in sorted((input_dir / row["problem_id"]).glob("input_*.txt")):
+                def get_output_filepath(suffix):
+                    return sub_out_dir / (input_filepath.stem + suffix)
+
+                try:
+                    with (
+                        open(input_filepath, "r") as infile,
+                        open(get_output_filepath(".stdout"), "w") as outfile,
+                        open(get_output_filepath(".exitcode"), "w") as exitcodefile
+                        ):
+                        proc = run_input(exe_filepath, infile, outfile)
+                        exitcodefile.write(str(proc.returncode))
+                except subprocess.CalledProcessError as e:
+                    log.debug(f"outcome: run error\n{traceback.format_exc()}")
+                    df.at[i, "outcome"] = "run_error"
+                    continue
+                except subprocess.TimeoutExpired as e:
+                    log.debug(f"outcome: timeout\n{traceback.format_exc()}")
+                    df.at[i, "outcome"] = "timeout"
+                    continue
+                
+                try:
+                    with open(get_output_filepath(".gcov_stdout"), "w") as outfile:
+                        run_gcov(src_filepath.name, outfile=outfile)
+                except subprocess.CalledProcessError as e:
+                    log.debug(f"outcome: gcov error\n{traceback.format_exc()}")
+                    df.at[i, "outcome"] = "gcov_error"
+                    continue
+                gcov_filepath = Path(src_filepath.name + ".gcov")
+                if gcov_filepath.exists():
+                    shutil.move(gcov_filepath, get_output_filepath(".gcov"))
+
+            # move extra gcov files to another directory
+            clean_coverage(row["submission_id"])
+            log.debug(f"outcome: success")
+            df.at[i, "outcome"] = "success"
         except Exception:
-            traceback.print_exc()
+            log.exception("unhandled error")
+            df.at[i, "outcome"] = "error"
+
+    df.to_csv(str(out_metadata_dir / (problem_name + "_coverage.csv")))
+    return list(df["outcome"])
 
 # problems = range(4053)
-problems = range(5)
+problems = range(sample_problems)
 # problems = range(1)
-it = tqdm.tqdm(problems, "problems")
-# it = Parallel(n_jobs=8)(delayed(do_one)(p) for p in it)  # parallel
-it = (do_one(p) for p in it)  # sequential
+it = problems
+it = Pool(3).imap_unordered(do_one, it)
+# it = Parallel(n_jobs=3)(delayed(do_one)(p) for p in it)  # parallel
+# it = (do_one(p) for p in it)  # sequential
 
 outcomes = defaultdict(int)
-for outcome_set in it:
+for outcome_set in tqdm.tqdm(it, total=len(problems), desc="running coverage"):
     for outcome in outcome_set:
         outcomes[outcome] += 1
 print(json.dumps(outcomes, indent=2))
