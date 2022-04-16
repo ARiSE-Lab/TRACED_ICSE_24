@@ -40,8 +40,12 @@ out_metadata_dir.mkdir(exist_ok=True, parents=True)
 
 enabled_languages = "C C++".split()
 
-def clean_coverage(submission_id):
-    for of in Path.cwd().glob(f"{submission_id}*.gc*"):
+def clean_coverage(submission_id, all_files=True):
+    if all_files:
+        g = f"{submission_id}*.gc*"
+    else:
+        g = f"{submission_id}*.gcda"
+    for of in Path.cwd().glob(g):
         of.unlink()
 
 def compile_coverage(src_filepath, exe_filepath):
