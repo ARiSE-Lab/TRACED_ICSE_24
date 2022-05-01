@@ -1,3 +1,7 @@
+"""
+Export coverage results as graphs
+"""
+
 import json
 from pathlib import Path
 import pandas as pd
@@ -28,6 +32,7 @@ filext_to_lang = {
 }
 lang_to_filext = {v: k for k, v in filext_to_lang.items()}
 
+input_dir = Path("../../all_input_output")
 out_dir = Path("instrumented_output")
 out_metadata_dir = Path("instrumented_metadata")
 counts_dir = Path("instrumented_counts")
@@ -42,84 +47,91 @@ def export_coverage(problem_num):
     Calls executed:66.67% of 3
     """
 
-    problem_name = 'p' + str(problem_num).rjust(5, "0")
+    try:
+        problem_name = 'p' + str(problem_num).rjust(5, "0")
 
-    df = pd.read_csv(str(out_metadata_dir / f'{problem_name}_coverage.csv'))
-    df = df[df["outcome"] == "success"]
+        df = pd.read_csv(str(out_metadata_dir / f'{problem_name}_coverage.csv'))
+        df = df[df["outcome"] == "success"]
 
-    results = {}
-    for lang, group in df.groupby("language"):
-        cache = counts_dir / (problem_name + "_lang" + lang + ".json")
-        if cache.exists():
-            with open(cache, 'r') as f:
-                result = json.load(f)
-        else:
-            result = {
-                "line_percent": [],
-                "branch_percent": [],
-                "branch_taken_percent": [],
-                "call_percent": [],
-                "line_count": [],
-                "branch_count": [],
-                "branch_taken_count": [],
-                "call_count": [],
-                "problem": problem_name,
-                "language": lang,
-            }
-            for _, row in group.iterrows():
-                row_out_dir = out_dir / row["problem_id"] / row["language"] / row["submission_id"]
+        results = {}
+        for lang, group in df.groupby("language"):
+            cache = counts_dir / (problem_name + "_lang" + lang + ".json")
+            if cache.exists():
+                with open(cache, 'r') as f:
+                    result = json.load(f)
+            else:
+                result = {
+                    "line_percent": [],
+                    "branch_percent": [],
+                    "branch_taken_percent": [],
+                    "call_percent": [],
+                    "line_count": [],
+                    "branch_count": [],
+                    "branch_taken_count": [],
+                    "call_count": [],
+                    "problem": problem_name,
+                    "language": lang,
+                }
+                for _, row in group.iterrows():
+                    row_out_dir = out_dir / row["problem_id"] / row["language"] / row["submission_id"]
 
-                for i in range(5):
-                    fpath = row_out_dir / f"input_{i}.gcov_stdout"
-                    if not fpath.exists():
-                        # print("not found", fpath)
-                        break
-                    with open(fpath) as f:
-                        lines = f.readlines()
-                        count = 0
-                        should_read = False
-                        for l in lines:
-                            first_word = l[:l.find(' ')]
-                            if first_word == "File":
+                    for i in range(5):
+                        fpath = row_out_dir / f"input_{i}.gcov_stdout"
+                        if not fpath.exists():
+                            # print("not found", fpath)
+                            break
+                        with open(fpath) as f:
+                            lines = f.readlines()
+                            count = 0
+                            should_read = False
+                            for l in lines:
+                                first_word = l[:l.find(' ')]
+                                if first_word == "File":
+                                    if should_read:
+                                        break
+                                    else:
+                                        if row["submission_id"] + '.' + lang_to_filext[row["language"]] in l:
+                                            should_read = True
                                 if should_read:
-                                    break
-                                else:
-                                    if row["submission_id"] + '.' + lang_to_filext[row["language"]] in l:
-                                        should_read = True
-                            if should_read:
-                                if first_word == "Lines":
-                                    m_line = re.match(r'Lines executed:(.*)% of (.*)', l)
-                                    result["line_percent"].append(float(m_line.group(1)))
-                                    result["line_count"].append(float(m_line.group(2)))
-                                    count += 1
-                                elif first_word == "Branches":
-                                    m_branch = re.match(r'Branches executed:(.*)% of (.*)', l)
-                                    result["branch_percent"].append(float(m_branch.group(1)))
-                                    result["branch_count"].append(float(m_branch.group(2)))
-                                    count += 1
-                                elif first_word == "Taken":
-                                    m_branch_taken = re.match(r'Taken at least once:(.*)% of (.*)', l)
-                                    result["branch_taken_percent"].append(float(m_branch_taken.group(1)))
-                                    result["branch_taken_count"].append(float(m_branch_taken.group(2)))
-                                    count += 1
-                                elif first_word == "Calls":
-                                    m_call = re.match(r'Calls executed:(.*)% of (.*)', l)
-                                    result["call_percent"].append(float(m_call.group(1)))
-                                    result["call_count"].append(float(m_call.group(2)))
-                                    count += 1
-                        if count > 4:
-                            print(fpath, i)
-            with open(cache, 'w') as f:
-                json.dump(result, f)
-        results[lang] = result
-    return results
+                                    if first_word == "Lines":
+                                        m_line = re.match(r'Lines executed:(.*)% of (.*)', l)
+                                        result["line_percent"].append(float(m_line.group(1)))
+                                        result["line_count"].append(float(m_line.group(2)))
+                                        count += 1
+                                    elif first_word == "Branches":
+                                        m_branch = re.match(r'Branches executed:(.*)% of (.*)', l)
+                                        result["branch_percent"].append(float(m_branch.group(1)))
+                                        result["branch_count"].append(float(m_branch.group(2)))
+                                        count += 1
+                                    elif first_word == "Taken":
+                                        m_branch_taken = re.match(r'Taken at least once:(.*)% of (.*)', l)
+                                        result["branch_taken_percent"].append(float(m_branch_taken.group(1)))
+                                        result["branch_taken_count"].append(float(m_branch_taken.group(2)))
+                                        count += 1
+                                    elif first_word == "Calls":
+                                        m_call = re.match(r'Calls executed:(.*)% of (.*)', l)
+                                        result["call_percent"].append(float(m_call.group(1)))
+                                        result["call_count"].append(float(m_call.group(2)))
+                                        count += 1
+                            if count > 4:
+                                print(fpath, i)
+                with open(cache, 'w') as f:
+                    json.dump(result, f)
+            results[lang] = result
+        return results
+    except Exception:
+        print("error:", problem_name)
+        return {}
 
 avg_all = {"C": defaultdict(list), "C++": defaultdict(list)}
 individual_stat_all = {"C": defaultdict(list), "C++": defaultdict(list)}
 lines_left_all = {"C": [], "C++": []}
 with Pool(8) as pool:
-    for result_all in tqdm.tqdm(pool.imap_unordered(export_coverage, range(500)), "problems"):
+    for result_all in tqdm.tqdm(pool.imap_unordered(export_coverage, range(4053)), "problems"):
         for lang, result in result_all.items():
+            if all(i.stat().st_size == 0 for i in (input_dir / result["problem"]).glob("input_*.txt")):
+                print("no input", result["problem"])
+                break
             lang = result["language"]
             del result["language"]
             del result["problem"]
