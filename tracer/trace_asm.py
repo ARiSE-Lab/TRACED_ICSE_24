@@ -1,6 +1,7 @@
 import traceback
 import sys
 import re
+from var_utils import *
 
 should_stop = False
 
@@ -41,7 +42,6 @@ class TraceAsm(gdb.Command):
             verbose = True
         else:
             verbose = False
-        print(f"verbose={verbose}")
 
         try:
             f.write(f'<trace>\n')

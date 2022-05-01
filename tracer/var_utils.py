@@ -5,6 +5,8 @@ def escape_xml_field(s):
     """
     https://stackoverflow.com/a/65450788/8999671
     """
+    if s is None:
+        return s
     return (
         s.replace('&', '&amp;')
         .replace('<', '&lt;')
@@ -16,7 +18,6 @@ def escape_xml_field(s):
 
     
 def get_repr(typ, name, value, age, exec_fn):
-    print("get_repr", typ, name, value, exec_fn)
     error = None
     if typ is not None:
         if typ == 'std::stringstream':
