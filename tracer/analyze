@@ -17,111 +17,73 @@ filext_to_lang = {
 lang_to_filext = {v: k for k, v in filext_to_lang.items()}
 
 def main(args):
-    compile_envs = copy.deepcopy(os.environ)
-    compile_envs["LD_LIBRARY_PATH"] = "/usr/lib/x86_64-linux-gnu/debug/"
+    exe_file = os.path.abspath(os.path.join(args.exe_dir, args.problem_id, args.language, args.submission_id))
 
-    tmp_dir = None
+    if not os.path.exists(exe_file):
+        print(f'Missing, must not have compiled: {exe_file}')
+        return
 
-    try:
-        if args.compile:
-            tmp_dir = tempfile.mkdtemp()
-            # compile file
-            _, src_ext = os.path.splitext(args.src_file)
-            if src_ext == '.c':
-                cc = 'gcc'
-            elif src_ext == '.cpp':
-                cc = 'g++'
-            else:
-                raise NotImplementedError(f'source file extension {src_ext}')
+    # construct and run command
+    trace_cmd_args = [
+        'gdb', exe_file,
+        '-batch', '-nh',
+    ]
 
-            tmp_file = os.path.join(tmp_dir, 'main' + src_ext)
-            tmp_file = shutil.copyfile(args.src_file, tmp_file)
-            tmp_path, _ = os.path.splitext(tmp_file)
-            compile_cmd_args = [
-                cc, '-g', '-O0', '-fno-inline-functions', '-std=c99',
-                tmp_file,
-                '-o', tmp_path
-            ]
-            if args.verbose:
-                compile_cmd_args_str = " ".join(compile_cmd_args)
-                print(f'{compile_cmd_args_str=}')
-            proc = subprocess.Popen(
-                compile_cmd_args, cwd=tmp_dir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding='utf-8', env=compile_envs)
-            stdout = proc.communicate()[0]
-            if args.verbose:
-                print('proc.stdout:')
-                print(stdout)
-            if proc.returncode != 0:
-                if args.verbose:
-                    print(f'Compile exited with code {proc.returncode}')
-                return (proc.returncode)
-        else:
-            tmp_file = args.src_file
-            tmp_path, _ = os.path.splitext(tmp_file)
-
-        if not os.path.exists(tmp_path):
-            print(f'Missing, must not have compiled: {tmp_path}')
-            return
-
-        # construct and run command
-        trace_cmd_args = [
-            'gdb', tmp_path,
-            '-batch', '-nh',
-        ]
-
-        r_cmd = f'start < {args.input_file}'
-        if args.output_file is not None:
-            r_cmd += f' > {args.output_file}'
-        trace_asm_cmd = 'trace-asm'
-        if args.log_file is not None:
-            trace_asm_cmd += f' {args.log_file} {"-v" if args.verbose else ""}'
-        if not args.debug_mode:
-            trace_cmd_args += [
-            '-ex', 'set logging file /dev/null',
-            '-ex', 'set logging redirect on',
-            '-ex', 'set logging on',
-        ]
+    r_cmd = f'start < {args.input_file}'
+    if args.output_file is not None:
+        r_cmd += f' > {args.output_file}'
+    trace_asm_cmd = 'trace-asm'
+    if args.log_file is not None:
+        trace_asm_cmd += f' {args.log_file} {"-v" if args.verbose else ""}'
+    if not args.debug_mode:
         trace_cmd_args += [
-            '-ex', 'set print elements unlimited',
-            '-ex', 'set print repeats unlimited',
-            '-ex', 'set max-value-size unlimited',
-            '-ex', f'source {trace_script}',
-            '-ex', r_cmd,
-            '-ex', trace_asm_cmd,
-        ]
+        '-ex', 'set logging file /dev/null',
+        '-ex', 'set logging redirect on',
+        '-ex', 'set logging on',
+    ]
+    trace_cmd_args += [
+        '-ex', 'set print elements unlimited',
+        '-ex', 'set print repeats unlimited',
+        '-ex', 'set max-value-size unlimited',
+        '-ex', f'source {trace_script}',
+        '-ex', r_cmd,
+        '-ex', trace_asm_cmd,
+    ]
 
+    if args.verbose:
+        trace_cmd_args_str = ' '.join(['"' + a + '"' if any(c.isspace() for c in a) else a for a in trace_cmd_args])
+        print(f'trace_cmd_args_str={trace_cmd_args_str}')
+    proc = subprocess.Popen(
+        trace_cmd_args, cwd=args.cwd_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
+    try:
+        stdout, stderr = proc.communicate(timeout=args.timeout)
+    except subprocess.TimeoutExpired:
         if args.verbose:
-            trace_cmd_args_str = ' '.join(['"' + a + '"' if any(c.isspace() for c in a) else a for a in trace_cmd_args])
-            print(f'{trace_cmd_args_str=}')
-        proc = subprocess.Popen(
-            trace_cmd_args, cwd=tmp_dir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding='utf-8')
-        try:
-            stdout = proc.communicate(timeout=args.timeout)[0]
-        except subprocess.TimeoutExpired:
-            if args.verbose:
-                print(f'Process timed out after {args.timeout} seconds')
-            if args.verbose:
-                proc.kill()
-                stdout = proc.communicate()[0]
-                print('(timed out) process stdout:')
-                print(stdout)
-            return 124  # Same exit code as timeout(1) command on Linux
+            print(f'Process timed out after {args.timeout} seconds')
         if args.verbose:
-            print('process stdout:')
+            proc.kill()
+            stdout = proc.communicate()[0]
+            print('(timed out) process stdout:')
             print(stdout)
-        if proc.returncode != 0 and args.verbose:
-            print(f'Trace exited with code {proc.returncode}')
-        return (proc.returncode)
-    finally:
-        if tmp_dir is not None and not args.keep_tmp:
-            shutil.rmtree(tmp_dir)
+        return 124  # Same exit code as timeout(1) command on Linux
+    if args.verbose:
+        print('process stdout:')
+        print(stdout)
+        print('process stderr:')
+        print(stderr)
+    if proc.returncode != 0 and args.verbose:
+        print(f'Trace exited with code {proc.returncode}')
+    return (proc.returncode)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("src_file", help='file to compile and execute')
-    parser.add_argument(
-        "input_file", help='file from which to redirect program output')
+    parser.add_argument("exe_dir")
+    parser.add_argument("problem_id")
+    parser.add_argument("language")
+    parser.add_argument("submission_id")
+    parser.add_argument("input_file", help='file from which to redirect program output')
+    parser.add_argument("cwd_dir", default=".")
     parser.add_argument(
         "--output_file", help='file to write program output')
     parser.add_argument("--log_file", help='file to write trace log')
@@ -133,12 +95,11 @@ if __name__ == '__main__':
     parser.add_argument("--timeout", default=10, type=int)
     args = parser.parse_args()
 
-    problem_id = os.path.basename(
-        os.path.dirname(os.path.dirname(args.src_file)))
-    solution_id, _ = os.path.splitext(os.path.basename(args.src_file))
-    lang_id = filext_to_lang[args.src_file[args.src_file.rfind('.')+1:]]
+    problem_id = args.problem_id
+    lang_id = args.language
+    solution_id = args.submission_id
     input_id, _ = os.path.splitext(os.path.basename(args.input_file))
-    trace_dir = os.path.join('trace', problem_id, lang_id)
+    trace_dir = os.path.join(args.cwd_dir, 'trace', problem_id, lang_id)
     run_id = os.path.join(trace_dir, f'{solution_id}_{input_id}')
 
     begin = datetime.now()
@@ -147,12 +108,12 @@ if __name__ == '__main__':
 
     if args.infer_output_files:
         if args.verbose:
-            print(f'{lang_id=} {problem_id=} {solution_id=}')
+            print(f'lang_id={lang_id} problem_id={problem_id} solution_id={solution_id}')
         os.makedirs(trace_dir, exist_ok=True)
         args.output_file = run_id + '.txt'
         args.log_file = run_id + '.xml'
         if args.verbose:
-            print(f'{args.output_file=} {args.log_file=}')
+            print(f'output_file={args.output_file} log_file={args.log_file}')
 
     args.input_file = os.path.abspath(args.input_file)
     if args.output_file is not None:
@@ -160,14 +121,12 @@ if __name__ == '__main__':
     if args.log_file is not None:
         args.log_file = os.path.abspath(args.log_file)
 
-    src_file_stem, _ = os.path.splitext(os.path.basename(args.src_file))
-
     src_dir = os.path.abspath(os.path.dirname(__file__))
     init_gdb = os.path.join(src_dir, 'init.gdb')
     trace_script = os.path.join(src_dir, 'trace_asm.py')
 
     if args.verbose:
-        print(f'{args=} {init_gdb=}')
+        print(f'args={args} init_gdb={init_gdb}')
 
     return_code = main(args)
     end = datetime.now()

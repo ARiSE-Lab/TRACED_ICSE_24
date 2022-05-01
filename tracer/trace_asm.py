@@ -41,6 +41,7 @@ class TraceAsm(gdb.Command):
             verbose = True
         else:
             verbose = False
+        print(f"verbose={verbose}")
 
         try:
             f.write(f'<trace>\n')
@@ -77,70 +78,7 @@ class TraceAsm(gdb.Command):
             f.write('</trace>\n')
             if len(argv) > 0:
                 f.close()
-    
-    def get_repr(self, frame, symbol):
-        proxy = None
-        value = str(symbol.value(frame))
-        errored = False
-        #print('symbol type', symbol.type.name)
-        if symbol.type.name is None:
-            return proxy, value, errored
-        #if symbol.type.name == '':
-        #    proxy = 'array'
-        if symbol.type.name == 'std::stringstream':
-            proxy = symbol.type.name
-            command = f'printf "\\"%s\\"", {symbol.name}.str().c_str()'
-                            
-            try:
-                value = gdb.execute(command, to_string=True)
-                value_lines = value.splitlines(keepends=True)
-                value = ''.join(l for l in value_lines if not l.startswith('warning:'))
-            except gdb.error as e:
-                value = f'error: {e}'
-                errored = True
-        if symbol.type.name == 'std::string':
-            proxy = symbol.type.name
-            command = f'printf "\\"%s\\"", {symbol.name}.c_str()'
-                            
-            try:
-                value = gdb.execute(command, to_string=True)
-                value_lines = value.splitlines(keepends=True)
-                value = ''.join(l for l in value_lines if not l.startswith('warning:'))
-            except gdb.error as e:
-                value = f'error: {e}'
-        if symbol.type.name.startswith('std::vector<'):
-            proxy = symbol.type.name
-            try:
-                value = gdb.execute(f'print *(&{symbol.name}[0])@{symbol.name}.size()', to_string=True)
-                value = re.sub(r'\$[0-9]+ = (.*)\n', r'\1', value)
-                if symbol.type.name.startswith('std::vector<std::string') or symbol.type.name.startswith('std::vector<std::basic_string'):
-                    try:
-                        length = int(gdb.execute(f'printf "%d", {symbol.name}.size()', to_string=True))
-                        try_value = '{'
-                        for i in range(length):
-                            if i > 0:
-                                try_value += ', '
-                            add_try_value = gdb.execute(f'printf "%s", {symbol.name}[{i}].c_str()', to_string=True)
-                            if add_try_value != '(null)':
-                                add_try_value = '"' + add_try_value + '"'
-                            try_value += add_try_value
-                        try_value += '}'
-                        value = try_value
-                    except gdb.error:
-                        pass
-            except gdb.error as e:
-                # The error "may be inlined" can happen when a template method is called without being instantiated
-                # https://stackoverflow.com/a/40179152/8999671
-                value = f'error: {e}'
-                errored = True
-                try:
-                    value = gdb.execute(f'p {symbol.name}', to_string=True)
-                    errored = False
-                except gdb.error as e:
-                    value = f'error: {e}'
-                    errored = True
-        return proxy, value, errored
-        
+
 
     def log_vars(self, frame, f):
         """
@@ -154,14 +92,9 @@ class TraceAsm(gdb.Command):
                 if (symbol.is_argument or symbol.is_variable):
                     name = symbol.name
                     if not name in variables and not name.startswith('std::'):
-                        proxy, value, errored = self.get_repr(frame, symbol)
-
-                        value = (value
-                            .replace('&', '&amp;')
-                            .replace('<', '&lt;')
-                            .replace('>', '&gt;')
-                            )
-
+                        typ = symbol.type.name
+                        name = symbol.name
+                        value = str(symbol.value(frame))
                         age = 'new'
                         old_vars = self.frame_to_vars.get(str(frame), {})
                         if name in old_vars:
@@ -169,14 +102,9 @@ class TraceAsm(gdb.Command):
                                 age = 'old'
                             else:
                                 age = 'modified'
-                        
-                        proxy_str = ""
-                        if proxy:
-                            proxy_str = f' proxy="{proxy}"'
-                        errored_str = ""
-                        if errored:
-                            errored_str = " errored=\"true\""
-                        f.write(f'<variable name="{name}" age="{age}"{proxy_str}{errored_str}>{value}</variable>\n')
+
+                        xml_elem = get_repr(typ, name, value, age, gdb.execute)
+                        f.write(xml_elem)
                         variables[name] = value
             block = block.superblock
         self.frame_to_vars[str(frame)] = variables
