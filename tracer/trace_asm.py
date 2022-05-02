@@ -46,6 +46,8 @@ class TraceAsm(gdb.Command):
             verbose = False
         self.verbose = verbose
 
+        last_func = None
+
         try:
             f.write(f'<trace>\n')
             i = 0
@@ -60,13 +62,26 @@ class TraceAsm(gdb.Command):
                     pc_line = sal.line
                     is_main_exe = path is not None and (path.startswith('/workspace') or path.startswith('/tmp') or path.startswith('/scratch') or path.startswith('/work'))
                     if is_main_exe:
-                        f.write(f'<program_point filename="{escape_xml_field(path)}" line="{escape_xml_field(pc_line)}" frame="{escape_xml_field(frame.function())}">\n')
+                        func = frame.function()
+                        if last_func is not None and func.name != last_func.name:
+                            older_function = None if frame.older() is None else frame.older().function()
+                            print(func, pc_line, last_func, older_function)
+                            if older_function is not None and older_function.name == last_func.name:
+                                f.write(f'<call caller="{escape_xml_field(older_function)}" callerline="{escape_xml_field(older_function.line)}" callee="{escape_xml_field(func)}" calleeline="{escape_xml_field(func.line)}"/>\n')
+                                print("enter")
+                                pass  # entering function call
+                            else:
+                                f.write(f'<return caller="{escape_xml_field(func)}" callerline="{escape_xml_field(func.line)}" callee="{escape_xml_field(last_func)}" calleeline="{escape_xml_field(last_func.line)}"/>\n')
+                                print("exit")
+                                pass  # exiting function call
+                        f.write(f'<program_point framefunction="{escape_xml_field(func)}" line="{escape_xml_field(pc_line)}" filename="{escape_xml_field(path)}">\n')
                         # f.write(f'<program_point filename="{escape_xml_field(path)}" line="{escape_xml_field(pc_line)}" frame="{escape_xml_field(frame.function())}" frametype="{escape_xml_field(frame.type())}" framelevel="{escape_xml_field(frame.level())}">\n')
                         self.log_vars(frame, f, path, frame.function().name, pc_line)
                         f.write('</program_point>\n')
                         f.flush()
                         if verbose: print(f'iter {i} - step')
                         gdb.execute('s')  # This line steps to the next line which reduces overhead, but skips some lines compared to stepi.
+                        last_func = func
                     else:
                         if verbose: print(f'iter {i} - not main exe - next')
                         gdb.execute('n')
