@@ -32,6 +32,7 @@ class TraceAsm(gdb.Command):
         self.frame_to_vars = {}
         self.lines_executed = []
         self.verbose = False
+        self.last_frame_id = None
 
     def invoke(self, argument, _):
         argv = gdb.string_to_argv(argument)
@@ -69,15 +70,15 @@ class TraceAsm(gdb.Command):
                                 print(func, pc_line, last_func, older_function)
                             if older_function is not None and older_function.name == last_func.name:
                                 f.write(f'<call caller="{escape_xml_field(older_function)}" callerline="{escape_xml_field(older_function.line)}" callee="{escape_xml_field(func)}" calleeline="{escape_xml_field(func.line)}"/>\n')
-                                print("enter")
                                 pass  # entering function call
                             else:
                                 f.write(f'<return caller="{escape_xml_field(func)}" callerline="{escape_xml_field(func.line)}" callee="{escape_xml_field(last_func)}" calleeline="{escape_xml_field(last_func.line)}"/>\n')
-                                print("exit")
+                                popped_vars = self.frame_to_vars.pop(self.last_frame_id, None)
+                                if verbose:
+                                    print("pop", self.last_frame_id, popped_vars)
                                 pass  # exiting function call
                         # f.write(f'<program_point filename="{escape_xml_field(path)}" line="{escape_xml_field(pc_line)}" frame="{escape_xml_field(frame.function())}" frametype="{escape_xml_field(frame.type())}" framelevel="{escape_xml_field(frame.level())}">\n')
                         self.log_vars(frame, f, path, frame.function().name, pc_line)
-                        f.write('</program_point>\n')
                         f.write(f'<line framefunction="{escape_xml_field(func)}" line="{escape_xml_field(pc_line)}" filename="{escape_xml_field(path)}"/>\n')
                         f.flush()
                         if verbose: print(f'iter {i} - step')
@@ -98,6 +99,13 @@ class TraceAsm(gdb.Command):
             if len(argv) > 0:
                 f.close()
 
+    
+    def get_frame_id(self, frame):
+        # frame_id = (start_block.start, start_block.end)
+        # frame_id = sal.symtab.static_block().start
+        # frame_id = start_block.superblock.start
+        return frame.block().start
+
 
     def log_vars(self, frame, f, path, funcname, pc_line):
         """
@@ -108,6 +116,8 @@ class TraceAsm(gdb.Command):
         block = frame.block()
         start_block = block
         variables = {}
+        frame_id = self.get_frame_id(frame)
+        self.last_frame_id = frame_id
         if self.verbose:
             print("frame_id", start_block.function, frame_id, start_block.start, start_block.end)
         while block:
