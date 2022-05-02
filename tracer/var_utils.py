@@ -8,7 +8,7 @@ def escape_xml_field(s):
     if s is None:
         return s
     return (
-        s.replace('&', '&amp;')
+        str(s).replace('&', '&amp;')
         .replace('<', '&lt;')
         .replace('>', '&gt;')
         .replace('"', "&quot;")
