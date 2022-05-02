@@ -105,7 +105,10 @@ class TraceAsm(gdb.Command):
         """
         pc_id_triplet = (path, funcname, pc_line)
         block = frame.block()
+        start_block = block
         variables = {}
+        frame_id = (start_block.start, start_block.end)
+        print("frame_id", frame_id)
         while block:
             for symbol in block:
                 if (symbol.is_argument or symbol.is_variable):
@@ -119,7 +122,7 @@ class TraceAsm(gdb.Command):
                                 typ = m.group(1)
                         value = str(symbol.value(frame))
                         age = 'new'
-                        old_vars = self.frame_to_vars.get(str(frame), {})
+                        old_vars = self.frame_to_vars.get(frame_id, {})
                         if name in old_vars:
                             if old_vars[name] == value:
                                 age = 'old'
@@ -144,7 +147,8 @@ class TraceAsm(gdb.Command):
                             f.write(xml_elem)
                             variables[name] = value
             block = block.superblock
-        self.frame_to_vars[str(frame)] = variables
+        self.frame_to_vars[frame_id] = variables
+        # self.frame_to_vars[frame.code] = variables  # frame.code is not accessible field
 
         # this is an attempt to include variable declarations by imputing line numbers
         # from last executed line to current line. It has some issues because of jumps etc.
