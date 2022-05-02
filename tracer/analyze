@@ -12,19 +12,18 @@ from pathlib import Path
 
 import logging
 
-filext_to_lang = {
-    "c": "C",
-    "cpp": "C++",
-    "java": "Java",
-}
-lang_to_filext = {v: k for k, v in filext_to_lang.items()}
 repo_src_dir = Path(__file__).parent.absolute()
-trace_script = repo_src_dir/'trace_asm.py'
-subprocess_env = {**os.environ, "PYTHONPATH": os.environ["PYTHONPATH"] + ":" + str(repo_src_dir)}
+trace_py = repo_src_dir/'trace_asm.py'
+jdi_app = repo_src_dir.parent/'trace_collection_java/app/build/install/app/bin/app'
+jdi_jar = repo_src_dir.parent/'trace_collection_java/app/build/libs/app.jar'
 
-assert os.path.exists(trace_script), trace_script
+assert os.path.exists(repo_src_dir), repo_src_dir
+assert os.path.exists(trace_py), trace_py
+assert os.path.exists(jdi_app), jdi_app
+assert os.path.exists(jdi_jar), jdi_jar
 
-def run_tracer(exe_file, input_file, log_file, output_file):
+
+def run_gdb(exe_file, input_file, log_file, output_file):
     assert exe_file.exists(), exe_file
     assert input_file.exists(), input_file
 
@@ -54,14 +53,14 @@ def run_tracer(exe_file, input_file, log_file, output_file):
     if args.verbose >= 3:
         trace_asm_cmd += " -v"  # output verbose stuff from inside the trace itself
     tracer_args += [
-        '-ex', f'source {trace_script}',
+        '-ex', f'source {trace_py}',
         '-ex', f'start < {input_file} > {output_file}',
         '-ex', trace_asm_cmd,
     ]
 
-    log.debug(f'''trace_cmd_args_str={' '.join(['"' + a + '"' if any(c.isspace() for c in a) else a for a in tracer_args])}''')
-
     # run
+    subprocess_env = {**os.environ, "PYTHONPATH": os.environ["PYTHONPATH"] + ":" + str(repo_src_dir)}
+    log.debug(f'''subprocess args={' '.join(['"' + a + '"' if any(c.isspace() for c in a) else a for a in cmd])}''')
     try:
         (Path(args.cwd_dir)/output_file).parent.mkdir(parents=True, exist_ok=True)
         proc = subprocess.Popen(
@@ -76,8 +75,45 @@ def run_tracer(exe_file, input_file, log_file, output_file):
         stdout, stderr = proc.communicate()
         exit_code = 124  # Same exit code as timeout(1) command on Linux
     if args.verbose >= 2:
-        log.debug(f'gdb stdout:\n{stdout}')
-        log.debug(f'gdb stderr:\n{stderr}')
+        log.debug(f'stdout:\n{stdout}')
+        log.debug(f'stderr:\n{stderr}')
+    return exit_code
+
+
+def run_jdi(exe_file, input_file, log_file, output_file):
+    # cmd = f"java -cp {exe_file.name}:{jdi_jar} tracer.App Main main -l {log_file} -o {output_file}"
+    cmd = f"{jdi_app} Main main -l {log_file} -o {output_file}"
+    if args.verbose >= 2:
+        cmd += " -v"
+    cmd += f" < {input_file}"
+
+    
+    # subprocess_env = {**os.environ, "CLASSPATH": os.environ["PYTHONPATH"] + ":" + str(exe_file)}
+    # log.debug(f'subprocess args={' '.join(['"' + a + '"' if any(c.isspace() for c in a) else a for a in cmd])}')
+    log.debug(f"cmd={cmd}")
+    try:
+        actual_cwd_dir = Path(args.cwd_dir)/exe_file.name
+        (actual_cwd_dir/output_file).parent.mkdir(parents=True, exist_ok=True)
+        actual_cwd_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(exe_file/"Main.class", actual_cwd_dir/f"Main.class")
+        proc = subprocess.Popen(
+            cmd, cwd=actual_cwd_dir,
+            # env=subprocess_env,
+            shell=True,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8'
+        )
+        stdout, stderr = proc.communicate(timeout=args.timeout)
+        exit_code = proc.returncode
+    except subprocess.TimeoutExpired:
+        log.info(f'Process timed out after {args.timeout} seconds')
+        proc.kill()
+        stdout, stderr = proc.communicate()
+        exit_code = 124  # Same exit code as timeout(1) command on Linux
+    if args.verbose >= 2:
+        log.debug(f'stdout:\n{stdout}')
+        log.debug(f'stderr:\n{stderr}')
+    shutil.copytree(str(actual_cwd_dir/"trace"), str(actual_cwd_dir.parent/"trace"), dirs_exist_ok=True)
+    shutil.rmtree(actual_cwd_dir)
     return exit_code
 
 
@@ -85,7 +121,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("exe_dir")
     parser.add_argument("problem_id")
-    parser.add_argument("language")
+    parser.add_argument("language", choices=["C", "C++", "Java"])
     parser.add_argument("submission_id")
     parser.add_argument("input_file", help='file from which to redirect program output')
     parser.add_argument("cwd_dir", nargs="?", default=".")
@@ -104,7 +140,7 @@ if __name__ == '__main__':
         )
     log = logging.getLogger()
     
-    log.debug(f'args={args} trace_script={trace_script}')
+    log.debug(f'args={args} trace_py={trace_py} jdi_app={jdi_app}')
 
     # start profiling
     begin = datetime.now()
@@ -115,7 +151,12 @@ if __name__ == '__main__':
     input_file = Path(args.input_file).absolute()
     log_file = Path("trace")/args.problem_id/args.language/args.submission_id/(input_file.name + "_log.xml")
     output_file = Path("trace")/args.problem_id/args.language/args.submission_id/(input_file.name + "_stdout.txt")
-    return_code = run_tracer(exe_file, input_file, log_file, output_file)
+    if args.language in ("C", "C++"):
+        return_code = run_gdb(exe_file, input_file, log_file, output_file)
+    elif args.language == "Java":
+        return_code = run_jdi(exe_file, input_file, log_file, output_file)
+    else:
+        raise NotImplementedException(args.language)
 
     # end profiling
     end = datetime.now()
