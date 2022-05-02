@@ -58,7 +58,7 @@ class TraceAsm(gdb.Command):
                     line = sal.line
                     is_main_exe = path is not None and (path.startswith('/workspace') or path.startswith('/tmp') or path.startswith('/scratch') or path.startswith('/work'))
                     if is_main_exe:
-                        f.write(f'<program_point filename="{path}" line="{line}">\n')
+                        f.write(f'<program_point filename="{escape_xml_field(path)}" line="{escape_xml_field(line)}">\n')
                         self.log_vars(frame, f)
                         f.write('</program_point>\n')
                         f.flush()
