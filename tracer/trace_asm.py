@@ -51,9 +51,8 @@ class TraceAsm(gdb.Command):
                     break
                 frame = gdb.selected_frame()
                 sal = frame.find_sal()
-                symtab = sal.symtab
-                # TODO if not symtab, then detect __libc_start_main and finish
-                if symtab:
+                if frame.function() is None:
+                    symtab = sal.symtab
                     path = symtab.fullname()
                     line = sal.line
                     is_main_exe = path is not None and (path.startswith('/workspace') or path.startswith('/tmp') or path.startswith('/scratch') or path.startswith('/work'))
@@ -68,7 +67,7 @@ class TraceAsm(gdb.Command):
                         if verbose: print(f'iter {i} - not main exe - next')
                         gdb.execute('n')
                 else:
-                    if verbose: print(f'iter {i} - symtab is None - next')
+                    if verbose: print(f'iter {i} - function() is None - next')
                     gdb.execute('n')
                 i += 1
         except Exception:
