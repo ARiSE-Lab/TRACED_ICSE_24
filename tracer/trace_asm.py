@@ -30,7 +30,7 @@ class TraceAsm(gdb.Command):
         global should_stop
         should_stop = False
         self.frame_to_vars = {}
-        self.lines_executed = set()
+        self.lines_executed = []
         self.verbose = False
 
     def invoke(self, argument, _):
@@ -62,7 +62,7 @@ class TraceAsm(gdb.Command):
                     if is_main_exe:
                         f.write(f'<program_point filename="{escape_xml_field(path)}" line="{escape_xml_field(pc_line)}" frame="{escape_xml_field(frame.function())}">\n')
                         # f.write(f'<program_point filename="{escape_xml_field(path)}" line="{escape_xml_field(pc_line)}" frame="{escape_xml_field(frame.function())}" frametype="{escape_xml_field(frame.type())}" framelevel="{escape_xml_field(frame.level())}">\n')
-                        self.log_vars(frame, f, path, pc_line)
+                        self.log_vars(frame, f, path, frame.function().name, pc_line)
                         f.write('</program_point>\n')
                         f.flush()
                         if verbose: print(f'iter {i} - step')
@@ -83,12 +83,12 @@ class TraceAsm(gdb.Command):
                 f.close()
 
 
-    def log_vars(self, frame, f, path, pc_line):
+    def log_vars(self, frame, f, path, funcname, pc_line):
         """
         Navigating scope blocks to gather variables.
         Source: https://stackoverflow.com/a/30032690/8999671
         """
-        pc_id_doublet = (path, pc_line)
+        pc_id_triplet = (path, funcname, pc_line)
         block = frame.block()
         variables = {}
         while block:
@@ -111,10 +111,17 @@ class TraceAsm(gdb.Command):
                             else:
                                 age = 'modified'
                                 
-                        symbol_id_doublet = (path, symbol_lineno)
-                        symbol_line_executed = symbol_id_doublet in self.lines_executed
+                        symbol_id_triplet = (path, funcname, symbol_lineno)
+
+                        # this inclusion rule seems to work for all programs
+                        symbol_line_executed = self.lines_executed[-1][:2] == symbol_id_triplet[:2] and self.lines_executed[-1][2] >= symbol_lineno if len(self.lines_executed) > 0 else False
+
+                        # this inclusion rule works for straight-line programs, but when variables are declared inside loops,
+                        # it prints the variable too early on subsequent iterations of the loop
+                        # symbol_line_executed = any(s[0] == path and s[1] == funcname and s[2] >= symbol_lineno for s in self.lines_executed)
+                        
                         if self.verbose:
-                            print(name, symbol_line_executed, symbol_id_doublet)
+                            print(name, symbol_line_executed, symbol_id_triplet)
 
                         xml_elem = get_repr(typ, name, value, age, gdb.execute, symbol_lineno, symbol_line_executed)
                         if xml_elem is not None:
@@ -122,6 +129,19 @@ class TraceAsm(gdb.Command):
                             variables[name] = value
             block = block.superblock
         self.frame_to_vars[str(frame)] = variables
-        self.lines_executed.add(pc_id_doublet)
+
+        # this is an attempt to include variable declarations by imputing line numbers
+        # from last executed line to current line. It has some issues because of jumps etc.
+        # j = len(self.lines_executed) - 1
+        # last_executed_line = None
+        # while j >= 0:
+        #     last_executed_line = self.lines_executed[j]
+        #     if last_executed_line[0] == path and last_executed_line[1] == funcname:
+        #         break
+        #     j -= 1
+        # if last_executed_line is not None:
+        #     if last_executed_line[2] < pc_line:
+        #         self.lines_executed += [(path, funcname, s) for s in range(last_executed_line[2], pc_line)]
+        self.lines_executed.append(pc_id_triplet)
 
 TraceAsm()
