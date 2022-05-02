@@ -172,7 +172,10 @@ class TraceAsm(gdb.Command):
                 if self.verbose:
                     print("before get_repr", name, symbol_line_executed, symbol_id_triplet)
 
-                xml_elem = get_repr(typ, name, value, age, gdb.execute, self.verbose, symbol_lineno, symbol_line_executed)
+                block_cmd = gdb.find_pc_line(block_id)
+                block_path = block_cmd.symtab.fullname()
+                block_line = block_cmd.line
+                xml_elem = get_repr(typ, name, value, age, gdb.execute, self.verbose, symbol_lineno, symbol_line_executed, block_id, block_path, block_line)
                 if xml_elem is not None:
                     f.write(xml_elem)
                     if block_id not in variables_by_frame:

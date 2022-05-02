@@ -17,7 +17,7 @@ def escape_xml_field(s):
         )
 
     
-def get_repr(typ, name, value, age, exec_fn, verbose, decl_lineno=None, decl_lineno_executed=None):
+def get_repr(typ, name, value, age, exec_fn, verbose, decl_lineno=None, decl_lineno_executed=None, block_id=None, block_path=None, block_line=None):
     error = None
     if decl_lineno_executed is not None and decl_lineno_executed == False:
         return None
@@ -78,7 +78,7 @@ def get_repr(typ, name, value, age, exec_fn, verbose, decl_lineno=None, decl_lin
                     error = None
                 except gdb.error as e:
                     error = traceback.format_exc()
-    xml_elem = f'''<variable name="{escape_xml_field(name)}" typ="{escape_xml_field(typ)}" age="{escape_xml_field(age)}"'''
+    xml_elem = f'''<variable name="{escape_xml_field(name)}" typ="{escape_xml_field(typ)}" age="{escape_xml_field(age)}" scope="{escape_xml_field(block_id)}" scopepath="{escape_xml_field(block_path)}" scopeline="{escape_xml_field(block_line)}"'''
     if error is not None:
         xml_elem += f''' {escape_xml_field(error)}'''
     xml_elem += f'''>{escape_xml_field(value)}</variable>\n'''
