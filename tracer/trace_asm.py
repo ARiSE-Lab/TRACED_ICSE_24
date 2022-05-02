@@ -74,10 +74,10 @@ class TraceAsm(gdb.Command):
                                 f.write(f'<return caller="{escape_xml_field(func)}" callerline="{escape_xml_field(func.line)}" callee="{escape_xml_field(last_func)}" calleeline="{escape_xml_field(last_func.line)}"/>\n')
                                 print("exit")
                                 pass  # exiting function call
-                        f.write(f'<program_point framefunction="{escape_xml_field(func)}" line="{escape_xml_field(pc_line)}" filename="{escape_xml_field(path)}">\n')
                         # f.write(f'<program_point filename="{escape_xml_field(path)}" line="{escape_xml_field(pc_line)}" frame="{escape_xml_field(frame.function())}" frametype="{escape_xml_field(frame.type())}" framelevel="{escape_xml_field(frame.level())}">\n')
                         self.log_vars(frame, f, path, frame.function().name, pc_line)
                         f.write('</program_point>\n')
+                        f.write(f'<line framefunction="{escape_xml_field(func)}" line="{escape_xml_field(pc_line)}" filename="{escape_xml_field(path)}"/>\n')
                         f.flush()
                         if verbose: print(f'iter {i} - step')
                         gdb.execute('s')  # This line steps to the next line which reduces overhead, but skips some lines compared to stepi.
