@@ -92,7 +92,10 @@ class TraceAsm(gdb.Command):
                     name = symbol.name
                     if not name in variables and not name.startswith('std::'):
                         typ = symbol.type.name
-                        name = symbol.name
+                        if typ is None:
+                            m = re.match(r'type = (.*)', gdb.execute('whatis ' + name, to_string=True).strip())
+                            if m is not None:
+                                typ = m.group(1)
                         value = str(symbol.value(frame))
                         age = 'new'
                         old_vars = self.frame_to_vars.get(str(frame), {})
