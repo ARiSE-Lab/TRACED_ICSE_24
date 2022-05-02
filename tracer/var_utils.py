@@ -17,8 +17,11 @@ def escape_xml_field(s):
         )
 
     
-def get_repr(typ, name, value, age, exec_fn):
+def get_repr(typ, name, value, age, exec_fn, decl_lineno=None, decl_lineno_executed=None):
     error = None
+    if decl_lineno_executed is not None and decl_lineno_executed == False:
+        return None
+    print("get_repr", typ, name, value, age, exec_fn, decl_lineno)
     if typ is not None:
         if typ == 'char':
             m = re.match(r"[0-9]+ ('.*')", value)

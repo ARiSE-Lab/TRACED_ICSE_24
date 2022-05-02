@@ -30,6 +30,8 @@ class TraceAsm(gdb.Command):
         global should_stop
         should_stop = False
         self.frame_to_vars = {}
+        self.lines_executed = set()
+        self.verbose = False
 
     def invoke(self, argument, _):
         argv = gdb.string_to_argv(argument)
@@ -42,6 +44,7 @@ class TraceAsm(gdb.Command):
             verbose = True
         else:
             verbose = False
+        self.verbose = verbose
 
         try:
             f.write(f'<trace>\n')
@@ -51,14 +54,15 @@ class TraceAsm(gdb.Command):
                     break
                 frame = gdb.selected_frame()
                 sal = frame.find_sal()
-                if frame.function() is None:
-                    symtab = sal.symtab
+                symtab = sal.symtab
+                if symtab is not None:
                     path = symtab.fullname()
-                    line = sal.line
+                    pc_line = sal.line
                     is_main_exe = path is not None and (path.startswith('/workspace') or path.startswith('/tmp') or path.startswith('/scratch') or path.startswith('/work'))
                     if is_main_exe:
-                        f.write(f'<program_point filename="{escape_xml_field(path)}" line="{escape_xml_field(line)}">\n')
-                        self.log_vars(frame, f)
+                        f.write(f'<program_point filename="{escape_xml_field(path)}" line="{escape_xml_field(pc_line)}" frame="{escape_xml_field(frame.function())}">\n')
+                        # f.write(f'<program_point filename="{escape_xml_field(path)}" line="{escape_xml_field(pc_line)}" frame="{escape_xml_field(frame.function())}" frametype="{escape_xml_field(frame.type())}" framelevel="{escape_xml_field(frame.level())}">\n')
+                        self.log_vars(frame, f, path, pc_line)
                         f.write('</program_point>\n')
                         f.flush()
                         if verbose: print(f'iter {i} - step')
@@ -67,7 +71,7 @@ class TraceAsm(gdb.Command):
                         if verbose: print(f'iter {i} - not main exe - next')
                         gdb.execute('n')
                 else:
-                    if verbose: print(f'iter {i} - function() is None - next')
+                    if verbose: print(f'iter {i} - no symbol table - next')
                     gdb.execute('n')
                 i += 1
         except Exception:
@@ -79,11 +83,12 @@ class TraceAsm(gdb.Command):
                 f.close()
 
 
-    def log_vars(self, frame, f):
+    def log_vars(self, frame, f, path, pc_line):
         """
         Navigating scope blocks to gather variables.
         Source: https://stackoverflow.com/a/30032690/8999671
         """
+        pc_id_doublet = (path, pc_line)
         block = frame.block()
         variables = {}
         while block:
@@ -92,6 +97,7 @@ class TraceAsm(gdb.Command):
                     name = symbol.name
                     if not name in variables and not name.startswith('std::'):
                         typ = symbol.type.name
+                        symbol_lineno = symbol.line
                         if typ is None:
                             m = re.match(r'type = (.*)', gdb.execute('whatis ' + name, to_string=True).strip())
                             if m is not None:
@@ -104,11 +110,18 @@ class TraceAsm(gdb.Command):
                                 age = 'old'
                             else:
                                 age = 'modified'
+                                
+                        symbol_id_doublet = (path, symbol_lineno)
+                        symbol_line_executed = symbol_id_doublet in self.lines_executed
+                        if self.verbose:
+                            print(name, symbol_line_executed, symbol_id_doublet)
 
-                        xml_elem = get_repr(typ, name, value, age, gdb.execute)
-                        f.write(xml_elem)
-                        variables[name] = value
+                        xml_elem = get_repr(typ, name, value, age, gdb.execute, symbol_lineno, symbol_line_executed)
+                        if xml_elem is not None:
+                            f.write(xml_elem)
+                            variables[name] = value
             block = block.superblock
         self.frame_to_vars[str(frame)] = variables
+        self.lines_executed.add(pc_id_doublet)
 
 TraceAsm()
