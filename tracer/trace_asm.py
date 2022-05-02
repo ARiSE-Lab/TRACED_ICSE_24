@@ -65,7 +65,8 @@ class TraceAsm(gdb.Command):
                         func = frame.function()
                         if last_func is not None and func.name != last_func.name:
                             older_function = None if frame.older() is None else frame.older().function()
-                            print(func, pc_line, last_func, older_function)
+                            if verbose:
+                                print(func, pc_line, last_func, older_function)
                             if older_function is not None and older_function.name == last_func.name:
                                 f.write(f'<call caller="{escape_xml_field(older_function)}" callerline="{escape_xml_field(older_function.line)}" callee="{escape_xml_field(func)}" calleeline="{escape_xml_field(func.line)}"/>\n')
                                 print("enter")
@@ -107,8 +108,8 @@ class TraceAsm(gdb.Command):
         block = frame.block()
         start_block = block
         variables = {}
-        frame_id = (start_block.start, start_block.end)
-        print("frame_id", frame_id)
+        if self.verbose:
+            print("frame_id", start_block.function, frame_id, start_block.start, start_block.end)
         while block:
             for symbol in block:
                 if (symbol.is_argument or symbol.is_variable):
@@ -130,6 +131,8 @@ class TraceAsm(gdb.Command):
                                 age = 'modified'
                                 
                         symbol_id_triplet = (path, funcname, symbol_lineno)
+                        if self.verbose:
+                            print("old_vars", name, age, frame_id, old_vars, self.frame_to_vars.keys(), frame_id in self.frame_to_vars.keys())
 
                         # this inclusion rule seems to work for all programs
                         leif = [(p, f, l) for p, f, l in self.lines_executed if p == path and f == funcname]
@@ -142,12 +145,14 @@ class TraceAsm(gdb.Command):
                         if self.verbose:
                             print(name, symbol_line_executed, symbol_id_triplet)
 
-                        xml_elem = get_repr(typ, name, value, age, gdb.execute, symbol_lineno, symbol_line_executed)
+                        xml_elem = get_repr(typ, name, value, age, gdb.execute, self.verbose, symbol_lineno, symbol_line_executed)
                         if xml_elem is not None:
                             f.write(xml_elem)
                             variables[name] = value
             block = block.superblock
         self.frame_to_vars[frame_id] = variables
+        if self.verbose:
+            print("assign variables", path, pc_line, frame_id, variables)
         # self.frame_to_vars[frame.code] = variables  # frame.code is not accessible field
 
         # this is an attempt to include variable declarations by imputing line numbers
