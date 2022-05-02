@@ -15,12 +15,10 @@ import logging
 repo_src_dir = Path(__file__).parent.absolute()
 trace_py = repo_src_dir/'trace_asm.py'
 jdi_app = repo_src_dir.parent/'trace_collection_java/app/build/install/app/bin/app'
-jdi_jar = repo_src_dir.parent/'trace_collection_java/app/build/libs/app.jar'
 
 assert os.path.exists(repo_src_dir), repo_src_dir
 assert os.path.exists(trace_py), trace_py
 assert os.path.exists(jdi_app), jdi_app
-assert os.path.exists(jdi_jar), jdi_jar
 
 
 def run_gdb(exe_file, input_file, log_file, output_file):
@@ -81,7 +79,6 @@ def run_gdb(exe_file, input_file, log_file, output_file):
 
 
 def run_jdi(exe_file, input_file, log_file, output_file):
-    # cmd = f"java -cp {exe_file.name}:{jdi_jar} tracer.App Main main -l {log_file} -o {output_file}"
     cmd = f"{jdi_app} Main main -l {log_file} -o {output_file}"
     if args.verbose >= 2:
         cmd += " -v"
