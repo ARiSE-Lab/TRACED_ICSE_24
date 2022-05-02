@@ -129,7 +129,8 @@ class TraceAsm(gdb.Command):
                         symbol_id_triplet = (path, funcname, symbol_lineno)
 
                         # this inclusion rule seems to work for all programs
-                        symbol_line_executed = self.lines_executed[-1][:2] == symbol_id_triplet[:2] and self.lines_executed[-1][2] >= symbol_lineno if len(self.lines_executed) > 0 else False
+                        leif = [(p, f, l) for p, f, l in self.lines_executed if p == path and f == funcname]
+                        symbol_line_executed = leif[-1][2] >= symbol_lineno if len(leif) > 0 else False
 
                         # this inclusion rule works for straight-line programs, but when variables are declared inside loops,
                         # it prints the variable too early on subsequent iterations of the loop
