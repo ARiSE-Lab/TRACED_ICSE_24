@@ -1,4 +1,4 @@
-
+import re
 
 
 def escape_xml_field(s):
@@ -20,6 +20,14 @@ def escape_xml_field(s):
 def get_repr(typ, name, value, age, exec_fn):
     error = None
     if typ is not None:
+        if typ == 'char':
+            m = re.match(r"[0-9]+ ('.*')", value)
+            if m:
+                value = m.group(1)
+        if typ == 'char *':
+            m = re.match(r'0x[0-9]+ (".*")', value)
+            if m:
+                value = m.group(1)
         if typ == 'std::stringstream':
             command = f'printf "\\"%s\\"", {name}.str().c_str()'
                             
