@@ -79,7 +79,7 @@ def run_gdb(exe_file, input_file, log_file, output_file):
 
 
 def run_jdi(exe_file, input_file, log_file, output_file):
-    cmd = f"{jdi_app} Main main -l {log_file} -o {output_file}"
+    cmd = f"{jdi_app} Main main {exe_file} -l {log_file} -o {output_file}"
     if args.verbose >= 2:
         cmd += " -v"
     cmd += f" < {input_file}"
@@ -89,12 +89,12 @@ def run_jdi(exe_file, input_file, log_file, output_file):
     # log.debug(f'subprocess args={' '.join(['"' + a + '"' if any(c.isspace() for c in a) else a for a in cmd])}')
     log.debug(f"cmd={cmd}")
     try:
-        actual_cwd_dir = Path(args.cwd_dir)/exe_file.name
-        (actual_cwd_dir/output_file).parent.mkdir(parents=True, exist_ok=True)
-        actual_cwd_dir.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(exe_file/"Main.class", actual_cwd_dir/f"Main.class")
+        #actual_cwd_dir = Path(args.cwd_dir)/exe_file.name
+        (args.cwd_dir/output_file).parent.mkdir(parents=True, exist_ok=True)
+        #actual_cwd_dir.mkdir(parents=True, exist_ok=True)
+        #shutil.copyfile(exe_file/"Main.class", actual_cwd_dir/f"Main.class")
         proc = subprocess.Popen(
-            cmd, cwd=actual_cwd_dir,
+            cmd, cwd=args.cwd_dir,
             # env=subprocess_env,
             shell=True,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8'
@@ -109,8 +109,8 @@ def run_jdi(exe_file, input_file, log_file, output_file):
     if args.verbose >= 2:
         log.debug(f'stdout:\n{stdout}')
         log.debug(f'stderr:\n{stderr}')
-    shutil.copytree(str(actual_cwd_dir/"trace"), str(actual_cwd_dir.parent/"trace"), dirs_exist_ok=True)
-    shutil.rmtree(actual_cwd_dir)
+    #shutil.copytree(str(actual_cwd_dir/"trace"), str(actual_cwd_dir.parent/"trace"), dirs_exist_ok=True)
+    #shutil.rmtree(actual_cwd_dir)
     return exit_code
 
 
