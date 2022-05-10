@@ -63,18 +63,19 @@ def run_gdb(exe_file, input_file, log_file, output_file):
         (Path(args.cwd_dir)/output_file).parent.mkdir(parents=True, exist_ok=True)
         proc = subprocess.Popen(
             tracer_args, cwd=args.cwd_dir, env=subprocess_env,
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8'
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding='utf-8'
         )
-        stdout, stderr = proc.communicate(timeout=args.timeout)
+        # Read line from stdout, break if EOF reached, print line
+        while proc.poll() is None:
+            line = proc.stdout.readline()
+            if args.verbose >= 2:
+                print(line, end="")
+        proc.wait()
         exit_code = proc.returncode
     except subprocess.TimeoutExpired:
         log.info(f'Process timed out after {args.timeout} seconds')
         proc.kill()
-        stdout, stderr = proc.communicate()
         exit_code = 124  # Same exit code as timeout(1) command on Linux
-    if args.verbose >= 2:
-        log.debug(f'stdout:\n{stdout}')
-        log.debug(f'stderr:\n{stderr}')
     return exit_code
 
 
@@ -97,20 +98,19 @@ def run_jdi(exe_file, input_file, log_file, output_file):
             cmd, cwd=args.cwd_dir,
             # env=subprocess_env,
             shell=True,
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8'
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding='utf-8'
         )
-        stdout, stderr = proc.communicate(timeout=args.timeout)
+        # Read line from stdout, break if EOF reached, print line
+        while proc.poll() is None:
+            line = proc.stdout.readline()
+            if args.verbose >= 2:
+                print(line, end="")
+        proc.wait()
         exit_code = proc.returncode
     except subprocess.TimeoutExpired:
         log.info(f'Process timed out after {args.timeout} seconds')
         proc.kill()
-        stdout, stderr = proc.communicate()
         exit_code = 124  # Same exit code as timeout(1) command on Linux
-    if args.verbose >= 2:
-        log.debug(f'stdout:\n{stdout}')
-        log.debug(f'stderr:\n{stderr}')
-    #shutil.copytree(str(actual_cwd_dir/"trace"), str(actual_cwd_dir.parent/"trace"), dirs_exist_ok=True)
-    #shutil.rmtree(actual_cwd_dir)
     return exit_code
 
 
