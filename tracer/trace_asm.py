@@ -14,6 +14,10 @@ def exit_handler(_):
     should_stop = True
 
 
+def is_user_path(path):
+    return path.startswith('/workspace') or path.startswith('/tmp') or path.startswith('/scratch') or path.startswith('/work')
+
+
 class TraceAsm(gdb.Command):
     """
     Source: https://stackoverflow.com/a/46661931/8999671
@@ -97,13 +101,17 @@ class TraceAsm(gdb.Command):
                             callfilename = older_sal.symtab.fullname()
                             caller = None if older is None else older.function()
                             callline = older_sal.line
-                            f.write(f'<call callline="{escape_xml_field(callline)}" callfilename="{escape_xml_field(callfilename)}" caller="{escape_xml_field(caller)}" callerline="{escape_xml_field(caller.line)}" callee="{escape_xml_field(callee)}" calleeline="{escape_xml_field(callee.line)}" calleefilename="{escape_xml_field(calleefilename)}"/>\n')
-                            MyReturnBreakpoint(frame, callline=callline, callfilename=callfilename, caller=caller, callerline=caller.line, callee=callee, calleeline=callee.line, calleefilename=calleefilename)
+                            if is_user_path(calleefilename) and is_user_path(callfilename):
+                                f.write(f'<call callline="{escape_xml_field(callline)}" callfilename="{escape_xml_field(callfilename)}" caller="{escape_xml_field(caller)}" callerline="{escape_xml_field(caller.line)}" callee="{escape_xml_field(callee)}" calleeline="{escape_xml_field(callee.line)}" calleefilename="{escape_xml_field(calleefilename)}"/>\n')
+                                MyReturnBreakpoint(frame, callline=callline, callfilename=callfilename, caller=caller, callerline=caller.line, callee=callee, calleeline=callee.line, calleefilename=calleefilename)
 
-                            myself.lines_executed.append([])
+                                myself.lines_executed.append([])
+                                return False
+                            else:
+                                print("skip", frame, caller, callee)
+                                return True
                         except Exception as ex:
                             print(f"breakpoint exception {current_file}:{lineno}", traceback.format_exc())
-                        return False
                 MyCallBreakpoint(f"{current_file}:{lineno}")
 
         try:
@@ -118,7 +126,7 @@ class TraceAsm(gdb.Command):
                 if symtab is not None:
                     path = symtab.fullname()
                     pc_line = sal.line
-                    is_main_exe = path is not None and (path.startswith('/workspace') or path.startswith('/tmp') or path.startswith('/scratch') or path.startswith('/work'))
+                    is_main_exe = path is not None and is_user_path(path)
                     if is_main_exe:
                         func = frame.function()
                         self.log_vars(frame, f, path, frame.function().name, pc_line)
