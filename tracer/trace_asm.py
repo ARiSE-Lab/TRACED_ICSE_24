@@ -36,6 +36,7 @@ class TraceAsm(gdb.Command):
         self.frame_to_vars = {}
         self.lines_executed = [[]]
         self.verbose = False
+        self.errored = False
 
     def invoke(self, argument, _):
         argv = gdb.string_to_argv(argument)
@@ -84,6 +85,7 @@ class TraceAsm(gdb.Command):
                                 print("pop", self.callee_frame_id, popped_vars, popped_lines_executed)
                         except Exception as ex:
                             print(f"breakpoint exception {current_file}:{lineno}", traceback.format_exc())
+                            self.errored = True
                         return False
                     def out_of_scope(self):
                         raise NotImplementedError("OUT OF SCOPE")
@@ -112,6 +114,7 @@ class TraceAsm(gdb.Command):
                                 return True
                         except Exception as ex:
                             print(f"breakpoint exception {current_file}:{lineno}", traceback.format_exc())
+                            self.errored = True
                 MyCallBreakpoint(f"{current_file}:{lineno}")
 
         try:
@@ -145,16 +148,16 @@ class TraceAsm(gdb.Command):
         except Exception:
             print('Error while tracing')
             traceback.print_exc()
+            self.errored = True
         finally:
             f.write('</trace>\n')
             if len(argv) > 0:
                 f.close()
+        if self.errored:
+            print("WARNING: error occurred in execution")
 
     
     def get_block_id(self, block):
-        # frame_id = (start_block.start, start_block.end)
-        # frame_id = sal.symtab.static_block().start
-        # frame_id = start_block.superblock.start
         return block.start
 
 
@@ -163,92 +166,81 @@ class TraceAsm(gdb.Command):
         Navigating scope blocks to gather variables.
         Source: https://stackoverflow.com/a/30032690/8999671
         """
-        pc_id_triplet = (path, funcname, pc_line)
-        block = frame.block()
-        frame_id = self.get_block_id(block)
-        if self.verbose:
-            print("frame_id", block.function, frame_id, block.start, block.end)
-        cur_block = block
-        # while cur_block is not None and not cur_block.is_global() and not cur_block.is_static():
-        old_vars = {}
-        symbols = []
-        while cur_block is not None:
+        try:
+            pc_id_triplet = (path, funcname, pc_line)
+            block = frame.block()
+            frame_id = self.get_block_id(block)
             if self.verbose:
-                print("block.start", cur_block.start, cur_block.function, cur_block.is_global, cur_block.is_static)
-            block_id = self.get_block_id(cur_block)
-            old_vars[block_id] = self.frame_to_vars.get(block_id, {})
-            for sym in cur_block:
-                if not (sym.is_argument or sym.is_variable) or sym.name.startswith('std::'):
-                    continue
-                if not any(s.name == sym.name for b, s in symbols):
-                    symbols.append((block_id, sym))
-            cur_block = cur_block.superblock
-        variables_by_frame = {}
-        symbols = list(sorted(symbols, key=lambda s: s[1].name))
-        if self.verbose:
-            print("symbol list", [s.name for b, s in symbols])
-        for block_id, symbol in symbols:
-            # if block_id not in variables_by_frame:
-            #     continue
-            name = symbol.name
-            if block_id not in variables_by_frame or not name in variables_by_frame[block_id]:
-                typ = symbol.type.name
-                symbol_lineno = symbol.line
-                if typ is None:
-                    m = re.match(r'type = (.*)', gdb.execute('whatis ' + name, to_string=True).strip())
-                    if m is not None:
-                        typ = m.group(1)
-                value = str(symbol.value(frame))
-                age = 'new'
-                if block_id in old_vars:
-                    if name in old_vars[block_id]:
-                        if old_vars[block_id][name] == value:
-                            age = 'old'
-                        else:
-                            age = 'modified'
+                print("frame_id", block.function, frame_id, block.start, block.end)
+            cur_block = block
+            old_vars = {}
+            symbols = []
+            while cur_block is not None:
+                if self.verbose:
+                    print("block.start", cur_block.start, cur_block.function, cur_block.is_global, cur_block.is_static)
+                block_id = self.get_block_id(cur_block)
+                old_vars[block_id] = self.frame_to_vars.get(block_id, {})
+                for sym in cur_block:
+                    if not (sym.is_argument or sym.is_variable) or sym.name.startswith('std::'):
+                        continue
+                    if not any(s.name == sym.name for b, s in symbols):
+                        symbols.append((block_id, sym))
+                cur_block = cur_block.superblock
+            variables_by_frame = {}
+            symbols = list(sorted(symbols, key=lambda s: s[1].name))
+            if self.verbose:
+                print("symbol list", [s.name for b, s in symbols])
+            for block_id, symbol in symbols:
+                try:
+                    name = symbol.name
+                    if block_id not in variables_by_frame or not name in variables_by_frame[block_id]:
+                        typ = symbol.type.name
+                        symbol_lineno = symbol.line
+                        if typ is None:
+                            m = re.match(r'type = (.*)', gdb.execute('whatis ' + name, to_string=True).strip())
+                            if m is not None:
+                                typ = m.group(1)
+                        value = str(symbol.value(frame))
+                        age = 'new'
+                        if block_id in old_vars:
+                            if name in old_vars[block_id]:
+                                if old_vars[block_id][name] == value:
+                                    age = 'old'
+                                else:
+                                    age = 'modified'
+                                
+                        symbol_id_triplet = (path, funcname, symbol_lineno)
+                        if self.verbose:
+                            print("old_vars", name, age, block_id, old_vars, self.frame_to_vars.keys(), block_id in self.frame_to_vars.keys())
+
+                        # this inclusion rule seems to work for all programs
+                        leif = [(p, f, l) for p, f, l in self.lines_executed[-1] if p == path and f == funcname]
+                        symbol_line_executed = leif[-1][2] >= symbol_lineno if len(leif) > 0 else False
                         
-                symbol_id_triplet = (path, funcname, symbol_lineno)
-                if self.verbose:
-                    print("old_vars", name, age, block_id, old_vars, self.frame_to_vars.keys(), block_id in self.frame_to_vars.keys())
+                        if self.verbose:
+                            print("before get_repr", name, symbol_line_executed, symbol_id_triplet)
 
-                # this inclusion rule seems to work for all programs
-                leif = [(p, f, l) for p, f, l in self.lines_executed[-1] if p == path and f == funcname]
-                symbol_line_executed = leif[-1][2] >= symbol_lineno if len(leif) > 0 else False
-
-                # this inclusion rule works for straight-line programs, but when variables are declared inside loops,
-                # it prints the variable too early on subsequent iterations of the loop
-                # symbol_line_executed = any(s[0] == path and s[1] == funcname and s[2] >= symbol_lineno for s in self.lines_executed)
-                
-                if self.verbose:
-                    print("before get_repr", name, symbol_line_executed, symbol_id_triplet)
-
-                block_cmd = gdb.find_pc_line(block_id)
-                block_path = block_cmd.symtab.fullname()
-                block_line = block_cmd.line
-                xml_elem = get_repr(typ, name, value, age, gdb.execute, self.verbose, symbol_lineno, symbol_line_executed, block_id, block_path, block_line)
-                if xml_elem is not None:
-                    f.write(xml_elem)
-                    if block_id not in variables_by_frame:
-                        variables_by_frame[block_id] = {}
-                    variables_by_frame[block_id][name] = value
-            if block_id in variables_by_frame:
-                if self.verbose:
-                    print("assign variables", path, pc_line, frame_id, variables_by_frame[block_id])
-                self.frame_to_vars[block_id] = variables_by_frame[block_id]
-        # self.frame_to_vars[frame.code] = variables  # frame.code is not accessible field
-
-        # this is an attempt to include variable declarations by imputing line numbers
-        # from last executed line to current line. It has some issues because of jumps etc.
-        # j = len(self.lines_executed) - 1
-        # last_executed_line = None
-        # while j >= 0:
-        #     last_executed_line = self.lines_executed[j]
-        #     if last_executed_line[0] == path and last_executed_line[1] == funcname:
-        #         break
-        #     j -= 1
-        # if last_executed_line is not None:
-        #     if last_executed_line[2] < pc_line:
-        #         self.lines_executed += [(path, funcname, s) for s in range(last_executed_line[2], pc_line)]
-        self.lines_executed[-1].append(pc_id_triplet)
+                        block_cmd = gdb.find_pc_line(block_id)
+                        block_path = block_cmd.symtab.fullname()
+                        block_line = block_cmd.line
+                        xml_elem = get_repr(typ, name, value, age, gdb.execute, self.verbose, symbol_lineno, symbol_line_executed, block_id, block_path, block_line)
+                        if xml_elem is not None:
+                            f.write(xml_elem)
+                            if block_id not in variables_by_frame:
+                                variables_by_frame[block_id] = {}
+                            variables_by_frame[block_id][name] = value
+                    if block_id in variables_by_frame:
+                        if self.verbose:
+                            print("assign variables", path, pc_line, frame_id, variables_by_frame[block_id])
+                        self.frame_to_vars[block_id] = variables_by_frame[block_id]
+                except Exception:
+                    if self.verbose:
+                        print("exception for symbol", block_id, symbol, traceback.format_exc())
+                    self.errored = True
+            self.lines_executed[-1].append(pc_id_triplet)
+        except Exception:
+            if self.verbose:
+                print("exception for frame", frame, f, path, funcname, pc_line, traceback.format_exc())
+            self.errored = True
 
 TraceAsm()
