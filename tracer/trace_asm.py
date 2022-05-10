@@ -30,9 +30,8 @@ class TraceAsm(gdb.Command):
         global should_stop
         should_stop = False
         self.frame_to_vars = {}
-        self.lines_executed = []
+        self.lines_executed = [[]]
         self.verbose = False
-        self.last_frame_id = None
 
     def invoke(self, argument, _):
         argv = gdb.string_to_argv(argument)
@@ -49,6 +48,64 @@ class TraceAsm(gdb.Command):
 
         last_func = None
 
+        functions_info = gdb.execute("info functions", to_string=True)
+        current_file = None
+        breakpoints = []
+        for l in functions_info.splitlines():
+            m = re.match(r"^File (.*):$", l)
+            if m:
+                current_file = m.group(1)
+            m = re.match(r"^([0-9]+):\s+(.*)$", l)
+            if m:
+                lineno = int(m.group(1))
+                funcname = m.group(2)
+                if verbose:
+                    print("setting breakpoint at", lineno, "for function", funcname)
+                myself = self
+                class MyReturnBreakpoint(gdb.FinishBreakpoint):
+                    """https://sourceware.org/gdb/onlinedocs/gdb/Finish-Breakpoints-in-Python.html"""
+                    def __init__(self, frame, callee):
+                        super().__init__(frame)
+                        self.callee_frame_id = myself.get_block_id(frame.block())
+                        self.callee = callee
+
+                    def stop(self):
+                        try:
+                            frame = gdb.selected_frame()
+                            func = frame.function()
+                            
+                            caller = escape_xml_field(func)
+                            callerline = escape_xml_field(func.line) if func is not None else None
+                            callee = escape_xml_field(self.callee)
+                            calleeline = escape_xml_field(self.callee.line) if self.callee is not None else None
+                            f.write(f'<return caller="{caller}" callerline="{callerline}" callee="{callee}" calleeline="{calleeline}"/>\n')
+
+                            popped_lines_executed = myself.lines_executed.pop()
+                            popped_vars = myself.frame_to_vars.pop(self.callee_frame_id, None)
+                            if verbose:
+                                print("pop", self.callee_frame_id, popped_vars, popped_lines_executed)
+                        except Exception as ex:
+                            print(f"breakpoint exception {current_file}:{lineno}", traceback.format_exc())
+                        return False
+                    def out_of_scope(self):
+                        raise NotImplementedError("OUT OF SCOPE")
+
+                class MyCallBreakpoint(gdb.Breakpoint):
+                    """https://sourceware.org/gdb/onlinedocs/gdb/Breakpoints-In-Python.html"""
+                    def stop(self):
+                        try:
+                            frame = gdb.selected_frame()
+                            func = frame.function()
+                            older_function = None if frame.older() is None else frame.older().function()
+                            f.write(f'<call caller="{escape_xml_field(older_function)}" callerline="{escape_xml_field(older_function.line)}" callee="{escape_xml_field(func)}" calleeline="{escape_xml_field(func.line)}"/>\n')
+                            MyReturnBreakpoint(frame, func)
+
+                            myself.lines_executed.append([])
+                        except Exception as ex:
+                            print(f"breakpoint exception {current_file}:{lineno}", traceback.format_exc())
+                        return False
+                MyCallBreakpoint(f"{current_file}:{lineno}")
+
         try:
             f.write(f'<trace>\n')
             i = 0
@@ -64,20 +121,6 @@ class TraceAsm(gdb.Command):
                     is_main_exe = path is not None and (path.startswith('/workspace') or path.startswith('/tmp') or path.startswith('/scratch') or path.startswith('/work'))
                     if is_main_exe:
                         func = frame.function()
-                        if last_func is not None and func.name != last_func.name:
-                            older_function = None if frame.older() is None else frame.older().function()
-                            if verbose:
-                                print(func, pc_line, last_func, older_function)
-                            if older_function is not None and older_function.name == last_func.name:
-                                f.write(f'<call caller="{escape_xml_field(older_function)}" callerline="{escape_xml_field(older_function.line)}" callee="{escape_xml_field(func)}" calleeline="{escape_xml_field(func.line)}"/>\n')
-                                pass  # entering function call
-                            else:
-                                f.write(f'<return caller="{escape_xml_field(func)}" callerline="{escape_xml_field(func.line)}" callee="{escape_xml_field(last_func)}" calleeline="{escape_xml_field(last_func.line)}"/>\n')
-                                popped_vars = self.frame_to_vars.pop(self.last_frame_id, None)
-                                if verbose:
-                                    print("pop", self.last_frame_id, popped_vars)
-                                pass  # exiting function call
-                        # f.write(f'<program_point filename="{escape_xml_field(path)}" line="{escape_xml_field(pc_line)}" frame="{escape_xml_field(frame.function())}" frametype="{escape_xml_field(frame.type())}" framelevel="{escape_xml_field(frame.level())}">\n')
                         self.log_vars(frame, f, path, frame.function().name, pc_line)
                         f.write(f'<line framefunction="{escape_xml_field(func)}" line="{escape_xml_field(pc_line)}" filename="{escape_xml_field(path)}"/>\n')
                         f.flush()
@@ -115,7 +158,6 @@ class TraceAsm(gdb.Command):
         pc_id_triplet = (path, funcname, pc_line)
         block = frame.block()
         frame_id = self.get_block_id(block)
-        self.last_frame_id = frame_id
         if self.verbose:
             print("frame_id", block.function, frame_id, block.start, block.end)
         cur_block = block
@@ -162,7 +204,7 @@ class TraceAsm(gdb.Command):
                     print("old_vars", name, age, block_id, old_vars, self.frame_to_vars.keys(), block_id in self.frame_to_vars.keys())
 
                 # this inclusion rule seems to work for all programs
-                leif = [(p, f, l) for p, f, l in self.lines_executed if p == path and f == funcname]
+                leif = [(p, f, l) for p, f, l in self.lines_executed[-1] if p == path and f == funcname]
                 symbol_line_executed = leif[-1][2] >= symbol_lineno if len(leif) > 0 else False
 
                 # this inclusion rule works for straight-line programs, but when variables are declared inside loops,
@@ -199,6 +241,6 @@ class TraceAsm(gdb.Command):
         # if last_executed_line is not None:
         #     if last_executed_line[2] < pc_line:
         #         self.lines_executed += [(path, funcname, s) for s in range(last_executed_line[2], pc_line)]
-        self.lines_executed.append(pc_id_triplet)
+        self.lines_executed[-1].append(pc_id_triplet)
 
 TraceAsm()
