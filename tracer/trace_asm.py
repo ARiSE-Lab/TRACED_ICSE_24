@@ -77,7 +77,7 @@ class TraceAsm(gdb.Command):
                     def stop(self):
                         try:
                             fields = " ".join(f'{k}="{escape_xml_field(v)}"' for k, v in self.tag_fields.items())
-                            f.write(f'<return {fields}/>\n')
+                            f.write(f'<call-metadata {fields}/>\n</call>\n')
 
                             popped_lines_executed = myself.lines_executed.pop()
                             popped_vars = myself.frame_to_vars.pop(self.callee_frame_id, None)
@@ -104,7 +104,7 @@ class TraceAsm(gdb.Command):
                             caller = None if older is None else older.function()
                             callline = older_sal.line
                             if is_user_path(calleefilename) and is_user_path(callfilename):
-                                f.write(f'<call callline="{escape_xml_field(callline)}" callfilename="{escape_xml_field(callfilename)}" caller="{escape_xml_field(caller)}" callerline="{escape_xml_field(caller.line)}" callee="{escape_xml_field(callee)}" calleeline="{escape_xml_field(callee.line)}" calleefilename="{escape_xml_field(calleefilename)}"/>\n')
+                                f.write(f'<call callline="{escape_xml_field(callline)}" callfilename="{escape_xml_field(callfilename)}" caller="{escape_xml_field(caller)}" callerline="{escape_xml_field(caller.line)}" callee="{escape_xml_field(callee)}" calleeline="{escape_xml_field(callee.line)}" calleefilename="{escape_xml_field(calleefilename)}">\n')
                                 MyReturnBreakpoint(frame, callline=callline, callfilename=callfilename, caller=caller, callerline=caller.line, callee=callee, calleeline=callee.line, calleefilename=calleefilename)
 
                                 myself.lines_executed.append([])
@@ -118,7 +118,7 @@ class TraceAsm(gdb.Command):
                 MyCallBreakpoint(f"{current_file}:{lineno}")
 
         try:
-            f.write(f'<trace>\n')
+            f.write(f'<trace lang="C/C++">\n')
             i = 0
             while True:
                 if should_stop:
