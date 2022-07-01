@@ -3,6 +3,7 @@ import sys
 import re
 from var_utils import *
 
+
 should_stop = False
 
 def exit_handler(_):
@@ -50,6 +51,9 @@ class TraceAsm(gdb.Command):
         else:
             verbose = False
         self.verbose = verbose
+
+        if verbose:
+            print("python version", sys.version)
 
         last_func = None
 

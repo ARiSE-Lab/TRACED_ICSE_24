@@ -18,7 +18,7 @@ jdi_app = repo_src_dir.parent/'trace_collection_java/app/build/install/app/bin/a
 
 assert os.path.exists(repo_src_dir), repo_src_dir
 assert os.path.exists(trace_py), trace_py
-assert os.path.exists(jdi_app), jdi_app
+# assert os.path.exists(jdi_app), jdi_app
 
 
 def run_gdb(exe_file, input_file, log_file, output_file):
