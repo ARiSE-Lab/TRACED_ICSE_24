@@ -99,14 +99,35 @@ class TraceAsm(gdb.Command):
                     def stop(self):
                         try:
                             frame = gdb.selected_frame()
-                            calleefilename = frame.find_sal().symtab.fullname()
-                            callee = frame.function()
+                            try:
+                                calleefilename = frame.find_sal().symtab.fullname()
+                            except Exception:
+                                calleefilename = "<error>"
+                            try:
+                                callee = frame.function()
+                            except Exception:
+                                callee = "<error>"
 
-                            older = frame.older()
-                            older_sal = older.find_sal()
-                            callfilename = older_sal.symtab.fullname()
-                            caller = None if older is None else older.function()
-                            callline = older_sal.line
+                            try:
+                                older = frame.older()
+                            except Exception:
+                                older = "<error>"
+                            try:
+                                older_sal = older.find_sal()
+                            except Exception:
+                                older_sal = "<error>"
+                            try:
+                                callfilename = older_sal.symtab.fullname()
+                            except Exception:
+                                callfilename = "<error>"
+                            try:
+                                caller = None if older is None else older.function()
+                            except Exception:
+                                caller = "<error>"
+                            try:
+                                callline = older_sal.line
+                            except Exception:
+                                callline = "<error>"
                             if is_user_path(calleefilename) and is_user_path(callfilename):
                                 f.write(f'<call callline="{escape_xml_field(callline)}" callfilename="{escape_xml_field(callfilename)}" caller="{escape_xml_field(caller)}" callerline="{escape_xml_field(caller.line)}" callee="{escape_xml_field(callee)}" calleeline="{escape_xml_field(callee.line)}" calleefilename="{escape_xml_field(calleefilename)}">\n')
                                 MyReturnBreakpoint(frame, callline=callline, callfilename=callfilename, caller=caller, callerline=caller.line, callee=callee, calleeline=callee.line, calleefilename=calleefilename)
