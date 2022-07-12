@@ -16,46 +16,27 @@ from get_trace import *
 
 # sequences_got = 0
 
-def get_sequence(lang, problem, solution, input_id, src_file, log_file, input_file, output_file):
-    # lang = row["lang"]
-    # problem = row["problem"]
-    # solution = row["solution"]
-    # input_id = row["input_id"]
-    # run_id = row["run_id"]
-    # log_file = row["log_file"]
-    # output_file = row["output_file"]
-
-    verbose = False
-    # global sequences_got
-    # verbose = sequences_got < 5
-    # sequences_got += 1
-
-    # print(run_id)
+def get_sequence(lang, problem, solution, input_id, src_file, log_file, input_file, output_file, verbose = False):
+    src_file = Path(src_file)
+    log_file = Path(log_file)
+    if input_file is not None:
+        input_file = Path(input_file)
+    output_file = Path(output_file)
     sequence = {}
     try:
         sequence["lang"] = lang
         sequence["input_no"] = input_id
 
-        # Find source file
+        # Find source filepath
         sequence["filepath"] = str(src_file.relative_to(src_file.parent.parent.parent))
 
-        # lang, problem, solution, input_id = run_id
         if verbose:
             print(lang, problem, solution, input_id)
-        
-        # Get files
-        # log_file = log_files[run_id]
-        # output_file = output_files[run_id]
-        # src_file = None
-        # for src_dir in src_dirs:
-        #     src_file = src_dir / problem / lang_to_path[lang] / (solution + '.' + lang)
-        #     if src_file.exists():
-        #         break
-        if verbose:
             print(log_file)
             print(output_file)
             print(src_file)
-        #if not log_file.exists() or not output_file.exists():
+
+        # handle error states
         if not log_file.exists():
             sequence["outcome"] = "missing_log"
             return sequence
@@ -65,7 +46,6 @@ def get_sequence(lang, problem, solution, input_id, src_file, log_file, input_fi
         if not src_file.exists():
             sequence["outcome"] = "missing_src"
             return sequence
-        # print(run_id, log_file, output_file)
         if os.path.getsize(log_file) > 1e9:
             sequence["outcome"] = "toobig_log"
             return sequence
@@ -82,33 +62,35 @@ def get_sequence(lang, problem, solution, input_id, src_file, log_file, input_fi
         lines = [' '.join(l.rstrip().split()) + f'// L{i}' for i, l in enumerate(lines, start=1) if l and not l.isspace()]
         sequence["src"] = '\n'.join(lines)
 
-        # Add input and output
-        # input_file = input_dir / problem / f'input_{input_id}.txt'
-        with open(input_file, encoding='utf-8', errors='replace') as f:
-            sequence["input"] = f.read()
-        output_file = output_file
-        
+        # Get input and output
+        if input_file is not None:
+            with open(input_file, encoding='utf-8', errors='replace') as f:
+                sequence["input"] = f.read()
         with open(output_file, encoding='utf-8', errors='replace') as f:
             sequence["output"] = f.read()
         
         # Map line number to variables/values
-        sequence["trace"], any_modified = get_trace(log_file, lang)
+        sequence["trace"], any_modified, timed_out = get_trace(log_file, lang)
         
+        outcome = "success"
         if not any_modified:
-            sequence["outcome"] = "success_short_trace"
-        else:
-            sequence["outcome"] = "success"
+            outcome += "_short_trace"
+        if timed_out:
+            outcome += "_timed_out"
+        sequence["outcome"] = outcome
     except ET.ParseError:
-        # print('Error', log_file, file=of)
-        #raise 
         sequence["outcome"] = "parse_error"
         sequence["error_msg"] = traceback.format_exc()
     except Exception:
-        # print('Error', log_file, file=of)
         sequence["outcome"] = "error"
         sequence["error_msg"] = traceback.format_exc()
 
     return sequence
+
+def test_case():
+    """Test entry used for debugging"""
+    print("trace:", get_trace("data/trace_mutated/trace/p00001/C/s000149616/input_0_0.txt_log.xml", "c"))
+    print("sequence:", get_sequence("c", "p00001", "s000149616", "input_0_0", "data/Project_CodeNet/data/p00001/C/s000149616.c", "data/trace_mutated/trace/p00001/C/s000149616/input_0_0.txt_log.xml", "data/mutated_input/p00001/input_0_0.txt", "data/trace_mutated/trace/p00001/C/s000149616/input_0_0.txt_stdout.txt"))
 
 def test_get_sequence():
     print(len(get_sequence(('c', 'p00000', 's096258090', '0'))))

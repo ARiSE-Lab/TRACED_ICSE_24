@@ -4,19 +4,13 @@ import re
 from collections import defaultdict
 import argparse
 
-if __name__ == "__main__":
-    # parse XML
-    parser = argparse.ArgumentParser()
-    parser.add_argument("xml_file", help="XML file to parse")
-    parser.add_argument("--schema", choices=["tree"], default="tree", help="schema to follow")
-    parser.add_argument("--output", default="output.xml", help="path of output XML file")
-    args = parser.parse_args()
-    with open(args.xml_file) as f:
+def transform_xml(xml_file, schema):
+    with open(xml_file) as f:
         tree = ET.parse(f)
     root = tree.getroot()
-    root.attrib["schema"] = args.schema
+    root.attrib["schema"] = schema
 
-    if args.schema == "tree":
+    if schema == "tree":
         # gather XML metadata
         previous_line = None  # last <line> element seen
         line_to_siblings = defaultdict(list)  # siblings of each <line>
@@ -64,7 +58,17 @@ if __name__ == "__main__":
             for p, ch in siblings:
                 p.remove(ch)
                 line.append(ch)
+    return tree
 
+
+if __name__ == "__main__":
+    # parse XML
+    parser = argparse.ArgumentParser()
+    parser.add_argument("xml_file", help="XML file to parse")
+    parser.add_argument("--schema", choices=["tree"], default="tree", help="schema to follow")
+    parser.add_argument("--output", default="output.xml", help="path of output XML file")
+    args = parser.parse_args()
+    tree = transform_xml(args.xml_file, args.schema)
     # output formatted XML
     ET.indent(tree, space="  ", level=0)
-    tree.write("output.xml")
+    tree.write(args.output)
