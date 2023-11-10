@@ -34,7 +34,7 @@ Check out our data samples for the expected format of the pre-processed code.
 
 python finetune/run_finetune_clone.py \
     --task poj104 \
-    --model_name_or_path $MODEL_PATH \
+    --model_name_or_path checkpoints/traced_2e-5 \
     --train_batch_size 8 \
     --eval_batch_size 8 \
     --gradient_accumulation_steps 1 \
