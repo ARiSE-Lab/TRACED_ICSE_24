@@ -8,16 +8,15 @@ import random
 
 import numpy as np
 import torch
-from torch.utils.data import DataLoader, Dataset, SequentialSampler, RandomSampler,TensorDataset
+from torch.utils.data import DataLoader, Dataset, SequentialSampler, RandomSampler
 from torch.utils.data.distributed import DistributedSampler
 import json
 
-from tqdm import tqdm, trange
 import multiprocessing
 cpu_cont = multiprocessing.cpu_count()
 from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup, AutoTokenizer, AutoConfig)
 
-from modeling import RobertaForEncoder
+from modeling import TracedForEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -602,7 +601,7 @@ def main():
             "You are instantiating a new tokenizer from scratch. This is not supported, but you can do it from another script, save it,"
             "and load it from here, using --tokenizer_name"
         )
-    model = RobertaForEncoder.from_pretrained(args.model_name_or_path, config=config, cache_dir=args.cache_dir)
+    model = TracedForEncoder.from_pretrained(args.model_name_or_path, config=config, cache_dir=args.cache_dir)
     model = Model(model, config, tokenizer, args)
     logger.info("Training/evaluation parameters %s", args)
     model.to(args.device)

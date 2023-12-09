@@ -20,17 +20,14 @@ from transformers import (
     DataCollatorWithPadding,
     EvalPrediction,
     HfArgumentParser,
-    PretrainedConfig,
     Trainer,
     TrainingArguments,
     default_data_collator,
     set_seed,
 )
 
-from modeling import RobertaForCls
+from modeling import TracedForCls
 from transformers.trainer_utils import get_last_checkpoint
-from transformers.utils import check_min_version
-from transformers.utils.versions import require_version
 
 def softmax(x):
     """Compute softmax values for each sets of scores in x."""
@@ -293,7 +290,7 @@ def main():
             "and load it from here, using --tokenizer_name"
         )
 
-    model = RobertaForCls.from_pretrained(
+    model = TracedForCls.from_pretrained(
         model_args.model_name_or_path,
         from_tf=bool(".ckpt" in model_args.model_name_or_path),
         config=config,

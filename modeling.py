@@ -9,9 +9,94 @@ from transformers.modeling_outputs import MaskedLMOutput
 from torch.nn import CrossEntropyLoss
 from typing import List, Optional, Tuple, Union
 
+@add_start_docstrings("""TRACED Model for comprehensive code understanding with MLM, VarType, ValueType, and AbsValue predictions""")
+class TracedModel(RobertaForMaskedLM):
+    def __init__(self, config, w_mlm=1.0, w_var_type=1.0, w_value_type=1.0, w_abs_value=1.0, num_var_type=3, num_value_type=6, num_abs_value=11):
+        super().__init__(config)
+        self.w_mlm = w_mlm
+        self.w_var_type = w_var_type
+        self.w_value_type = w_value_type
+        self.w_abs_value = w_abs_value
+        self.num_var_type = num_var_type
+        self.num_value_type = num_value_type
+        self.num_abs_value = num_abs_value
+        classifier_dropout = (
+            config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
+        )
+        self.dropout = nn.Dropout(classifier_dropout)
+        self.var_type_cls = nn.Linear(config.hidden_size, self.num_var_type)
+        self.value_type_cls = nn.Linear(config.hidden_size, self.num_value_type)
+        self.abs_value_cls = nn.Linear(config.hidden_size, self.num_abs_value)
 
-@add_start_docstrings("""RoBERTa Model for code coverage prediction.""")
-class RobertaModelForCoverage(RobertaPreTrainedModel):
+        # Initialize weights and apply final processing
+        self.post_init()
+
+    def forward(
+        self,
+        input_ids: Optional[torch.LongTensor] = None,
+        attention_mask: Optional[torch.FloatTensor] = None,
+        token_type_ids: Optional[torch.LongTensor] = None,
+        position_ids: Optional[torch.LongTensor] = None,
+        head_mask: Optional[torch.FloatTensor] = None,
+        inputs_embeds: Optional[torch.FloatTensor] = None,
+        mlm_labels: Optional[torch.LongTensor] = None,
+        var_type_labels: Optional[torch.LongTensor] = None,
+        value_type_labels: Optional[torch.LongTensor] = None,
+        abs_value_labels: Optional[torch.LongTensor] = None,
+        output_attentions: Optional[bool] = None,
+        output_hidden_states: Optional[bool] = None,
+        return_dict: Optional[bool] = None,
+    ) -> Union[Tuple[torch.Tensor], MaskedLMOutput]:
+
+        outputs = self.roberta(
+            input_ids,
+            attention_mask=attention_mask,
+            token_type_ids=token_type_ids,
+            position_ids=position_ids,
+            head_mask=head_mask,
+            inputs_embeds=inputs_embeds,
+            output_attentions=output_attentions,
+            output_hidden_states=output_hidden_states,
+            return_dict=return_dict,
+        )
+
+        sequence_output = outputs[0]
+        
+        # MLM prediction
+        lm_prediction_scores = self.lm_head(sequence_output)
+        masked_lm_loss = None
+        if mlm_labels is not None:
+            loss_fct = CrossEntropyLoss()
+            masked_lm_loss = loss_fct(lm_prediction_scores.view(-1, self.config.vocab_size), mlm_labels.view(-1))
+
+        # VarType, ValueType, AbsValue prediction
+        sequence_output = self.dropout(sequence_output)
+        var_type_logits = self.var_type_cls(sequence_output)
+        var_type_loss = None
+        if var_type_labels is not None:
+            loss_fct = CrossEntropyLoss()
+            var_type_loss = loss_fct(var_type_logits.view(-1, self.num_var_type), var_type_labels.view(-1))
+
+        value_type_logits = self.value_type_cls(sequence_output)
+        value_type_loss = None
+        if value_type_labels is not None:
+            loss_fct = CrossEntropyLoss()
+            value_type_loss = loss_fct(value_type_logits.view(-1, self.num_value_type), value_type_labels.view(-1))
+
+        abs_value_logits = self.abs_value_cls(sequence_output)
+        abs_value_loss = None
+        if abs_value_labels is not None:
+            loss_fct = CrossEntropyLoss()
+            abs_value_loss = loss_fct(abs_value_logits.view(-1, self.num_abs_value), abs_value_labels.view(-1))
+
+        loss = self.w_mlm * masked_lm_loss + self.w_var_type * var_type_loss + self.w_value_type * value_type_loss + self.w_abs_value * abs_value_loss
+                
+        output = (lm_prediction_scores, var_type_logits, value_type_logits, abs_value_logits) + outputs[2:]
+        return ((loss, masked_lm_loss, var_type_loss, value_type_loss, abs_value_loss) + output) if masked_lm_loss is not None else output
+
+
+@add_start_docstrings("""TRACED Model for code coverage prediction.""")
+class TracedModelForCoverage(RobertaPreTrainedModel):
     _keys_to_ignore_on_load_missing = [r"position_ids"]
 
     def __init__(self, config):
@@ -89,7 +174,8 @@ class RobertaModelForCoverage(RobertaPreTrainedModel):
         )
     
 
-class RobertaForEncoder(RobertaPreTrainedModel):
+@add_start_docstrings("""TRACED Model for encoding source code as representation.""")
+class TracedForEncoder(RobertaPreTrainedModel):
     def __init__(self, config):
         super().__init__(config)
         self.roberta = RobertaModel(config, add_pooling_layer=True)
@@ -124,8 +210,8 @@ class RobertaForEncoder(RobertaPreTrainedModel):
 
         return pooled_output
 
-
-class RobertaForCls(RobertaPreTrainedModel):
+@add_start_docstrings("""TRACED Model for classification tasks""")
+class TracedForCls(RobertaPreTrainedModel):
     def __init__(self, config, new_pooler):
         super().__init__(config)
         self.roberta = RobertaModel(config, add_pooling_layer=True)
@@ -175,7 +261,8 @@ class RobertaForCls(RobertaPreTrainedModel):
 
         return outputs
 
-class RobertaForValue(RobertaForMaskedLM):
+@add_start_docstrings("""TRACED Model for runtime value prediction.""")
+class TracedForValue(RobertaForMaskedLM):
     def __init__(self, config, num_value):
         super().__init__(config)
         self.num_value = num_value
