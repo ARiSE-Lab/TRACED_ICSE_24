@@ -2,7 +2,7 @@
 
 ## Install Dependencies
 
-```
+```sh
 # Create conda env
 
 conda create -n traced python=3.8.13;
@@ -15,6 +15,27 @@ pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 torchaudio==0.12.1 --e
 https://github.com/NVIDIA/apex.git
 cd apex;
 pip install -v --disable-pip-version-check --no-cache-dir ./
+
+# Configure accelerate (required only for pre-training)
+
+accelerate config;
+
+>>>
+In which compute environment are you running? ([0] This machine, [1] AWS (Amazon SageMaker)): 0
+Which type of machine are you using? ([0] No distributed training, [1] multi-CPU, [2] multi-GPU, [3] TPU [4] MPS): 2
+How many different machines will you use (use more than 1 for multi-node training)? [1]: 1
+Do you want to use DeepSpeed? [yes/NO]: yes
+Do you want to specify a json file to a DeepSpeed config? [yes/NO]: NO
+What should be your DeepSpeed's ZeRO optimization stage (0, 1, 2, 3)? [2]: 2
+Where to offload optimizer states? [none/cpu/nvme]: cpu
+Where to offload parameters? [none/cpu/nvme]: cpu
+How many gradient accumulation steps you're passing in your script? [1]: 64
+Do you want to use gradient clipping? [yes/NO]: NO
+Do you want to enable `deepspeed.zero.Init` when using ZeRO Stage-3 for constructing massive models? [yes/NO]: NO
+How many GPU(s) should be used for distributed training? [1]:2
+Do you wish to use FP16 or BF16 (mixed precision)? [NO/fp16/bf16]: fp16
+>>>
+
 ```
 
 ## Data and pre-trained checkpoint

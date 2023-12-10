@@ -127,7 +127,7 @@ def main():
     # padding = "max_length" if not args.dynamic_padding else False
 
     def preprocess_function(examples):
-        features = process_quantized_value(args, tokenizer, examples, args.abs_gran)
+        features = process_quantized_value(args, tokenizer, examples)
         return features
 
 
