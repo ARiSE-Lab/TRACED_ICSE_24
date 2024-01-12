@@ -164,7 +164,7 @@ class TraceAsm(gdb.Command):
                         gdb.execute('s')  # This line steps to the next line which reduces overhead, but skips some lines compared to stepi.
                         last_func = func
                     else:
-                        if verbose: print(f'iter {i} - not main exe - next')
+                        if verbose: print(f'iter {i} - {path} is not main exe - next')
                         gdb.execute('n')
                 else:
                     if verbose: print(f'iter {i} - no symbol table - next')
