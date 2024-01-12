@@ -64,6 +64,9 @@ class TraceAsm(gdb.Command):
             m = re.match(r"^File (.*):$", l)
             if m:
                 current_file = m.group(1)
+            if not m or not is_user_path(current_file):
+                if verbose: print(f"{current_file} is not main file - skip breakpoint")
+                continue
             m = re.match(r"^([0-9]+):\s+(.*)$", l)
             if m:
                 lineno = int(m.group(1))
