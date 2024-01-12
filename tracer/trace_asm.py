@@ -16,7 +16,7 @@ def exit_handler(_):
 
 
 def is_user_path(path):
-    return path.startswith('/workspace') or path.startswith('/tmp') or path.startswith('/scratch') or path.startswith('/work')
+    return path.startswith('/workspace') or path.startswith('/tmp') or path.startswith('/scratch') or path.startswith('/work') or re.match(r".*p[0-9]{5}/(C|C\+\+)/s[0-9]{9}\.c$", path)
 
 
 class TraceAsm(gdb.Command):
