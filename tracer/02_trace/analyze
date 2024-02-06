@@ -1,24 +1,18 @@
 #!/usr/bin/env python3
 
-import shutil
-import tempfile
 import subprocess
 import argparse
 import os
-import copy
 from datetime import datetime
-import time
 from pathlib import Path
 
 import logging
 
 repo_src_dir = Path(__file__).parent.absolute()
-trace_py = repo_src_dir/'trace_asm.py'
-jdi_app = repo_src_dir.parent/'trace_collection_java/app/build/install/app/bin/app'
+trace_py = repo_src_dir / "trace_asm.py"
 
 assert os.path.exists(repo_src_dir), repo_src_dir
 assert os.path.exists(trace_py), trace_py
-# assert os.path.exists(jdi_app), jdi_app
 
 
 def run_gdb(exe_file, input_file, log_file, output_file):
@@ -27,43 +21,63 @@ def run_gdb(exe_file, input_file, log_file, output_file):
 
     # construct gdb command
     tracer_args = [
-        'gdb', str(exe_file),
-        '-batch', '-nh',
+        "gdb",
+        str(exe_file),
+        "-batch",
+        "-nh",
     ]
-    
+
     # enable/disable stdout and stderr from gdb
     if args.verbose < 2:
         tracer_args += [
-            '-ex', 'set logging file /dev/null',
-            '-ex', 'set logging redirect on',
-            '-ex', 'set logging on',
+            "-ex",
+            "set logging file /dev/null",
+            "-ex",
+            "set logging redirect on",
+            "-ex",
+            "set logging on",
         ]
 
     # set gdb options to print arrays full value
     tracer_args += [
-        '-ex', 'set print elements unlimited',
-        '-ex', 'set print repeats unlimited',
-        '-ex', 'set max-value-size unlimited',
+        "-ex",
+        "set print elements unlimited",
+        "-ex",
+        "set print repeats unlimited",
+        "-ex",
+        "set max-value-size unlimited",
     ]
 
     # import trace script, move to start of main(), and run tracer
-    trace_asm_cmd = f'trace-asm {log_file}'
+    trace_asm_cmd = f"trace-asm {log_file}"
     if args.verbose >= 3:
         trace_asm_cmd += " -v"  # output verbose stuff from inside the trace itself
     tracer_args += [
-        '-ex', f'source {trace_py}',
-        '-ex', f'start < {input_file} > {output_file}',
-        '-ex', trace_asm_cmd,
+        "-ex",
+        f"source {trace_py}",
+        "-ex",
+        f"start < {input_file} > {output_file}",
+        "-ex",
+        trace_asm_cmd,
     ]
 
     # run
-    subprocess_env = {**os.environ, "PYTHONPATH": os.environ.get("PYTHONPATH", "") + ":" + str(repo_src_dir)}
-    log.debug(f'''subprocess args={' '.join(['"' + a + '"' if any(c.isspace() for c in a) else a for a in tracer_args])}''')
+    subprocess_env = {
+        **os.environ,
+        "PYTHONPATH": os.environ.get("PYTHONPATH", "") + ":" + str(repo_src_dir),
+    }
+    log.debug(
+        f"""subprocess args={' '.join(['"' + a + '"' if any(c.isspace() for c in a) else a for a in tracer_args])}"""
+    )
     try:
-        (Path(args.cwd_dir)/output_file).parent.mkdir(parents=True, exist_ok=True)
+        (Path(args.cwd_dir) / output_file).parent.mkdir(parents=True, exist_ok=True)
         proc = subprocess.Popen(
-            tracer_args, cwd=args.cwd_dir, env=subprocess_env,
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding='utf-8'
+            tracer_args,
+            cwd=args.cwd_dir,
+            env=subprocess_env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            encoding="utf-8",
         )
         # Read line from stdout, break if EOF reached, print line
         while proc.poll() is None:
@@ -73,54 +87,19 @@ def run_gdb(exe_file, input_file, log_file, output_file):
         proc.wait(timeout=args.timeout)
         exit_code = proc.returncode
     except subprocess.TimeoutExpired:
-        log.info(f'Process timed out after {args.timeout} seconds')
+        log.info(f"Process timed out after {args.timeout} seconds")
         proc.kill()
         exit_code = 124  # Same exit code as timeout(1) command on Linux
     return exit_code
 
 
-def run_jdi(exe_file, input_file, log_file, output_file):
-    cmd = f"{jdi_app} Main main {exe_file} -l {log_file} -o {output_file}"
-    if args.verbose >= 2:
-        cmd += " -v"
-    cmd += f" < {input_file}"
-
-    
-    # subprocess_env = {**os.environ, "CLASSPATH": os.environ["PYTHONPATH"] + ":" + str(exe_file)}
-    # log.debug(f'subprocess args={' '.join(['"' + a + '"' if any(c.isspace() for c in a) else a for a in cmd])}')
-    log.debug(f"cmd={cmd}")
-    try:
-        #actual_cwd_dir = Path(args.cwd_dir)/exe_file.name
-        (args.cwd_dir/output_file).parent.mkdir(parents=True, exist_ok=True)
-        #actual_cwd_dir.mkdir(parents=True, exist_ok=True)
-        #shutil.copyfile(exe_file/"Main.class", actual_cwd_dir/f"Main.class")
-        proc = subprocess.Popen(
-            cmd, cwd=args.cwd_dir,
-            # env=subprocess_env,
-            shell=True,
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding='utf-8'
-        )
-        # Read line from stdout, break if EOF reached, print line
-        while proc.poll() is None:
-            line = proc.stdout.readline()
-            if args.verbose >= 2:
-                print(line, end="")
-        proc.wait(timeout=args.timeout)
-        exit_code = proc.returncode
-    except subprocess.TimeoutExpired:
-        log.info(f'Process timed out after {args.timeout} seconds')
-        proc.kill()
-        exit_code = 124  # Same exit code as timeout(1) command on Linux
-    return exit_code
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("exe_dir")
     parser.add_argument("problem_id")
-    parser.add_argument("language", choices=["C", "C++", "Java"])
+    parser.add_argument("language", choices=["C", "C++"])
     parser.add_argument("submission_id")
-    parser.add_argument("input_file", help='file from which to redirect program output')
+    parser.add_argument("input_file", help="file from which to pipe standard input")
     parser.add_argument("cwd_dir", nargs="?", default=".")
     parser.add_argument("-v", "--verbose", type=int, default=0)
     parser.add_argument("--timeout", default=10, type=int)
@@ -133,33 +112,46 @@ if __name__ == '__main__':
     logging.basicConfig(
         level=log_level,
         format=f"{args.problem_id}/{args.language}/{args.submission_id} {os.path.basename(args.input_file)} %(asctime)s %(levelname)s %(message)s",
-        datefmt="%Y-%m-%dT%H:%M:%S"
-        )
+        datefmt="%Y-%m-%dT%H:%M:%S",
+    )
     log = logging.getLogger()
-    
-    log.debug(f'args={args} trace_py={trace_py} jdi_app={jdi_app}')
+
+    log.debug(f"args={args} trace_py={trace_py}")
 
     # start profiling
     begin = datetime.now()
-    log.info(f'begin')
-    
+    log.info(f"begin")
+
     # run tracer
-    exe_file = (Path(args.exe_dir)/args.problem_id/args.language/args.submission_id).absolute()
+    exe_file = (
+        Path(args.exe_dir) / args.problem_id / args.language / args.submission_id
+    ).absolute()
     input_file = Path(args.input_file).absolute()
-    log_file = Path("trace")/args.problem_id/args.language/args.submission_id/(input_file.name + "_log.xml")
-    output_file = Path("trace")/args.problem_id/args.language/args.submission_id/(input_file.name + "_stdout.txt")
+    output_dir = Path("trace")
+    log_file = (
+        output_dir
+        / args.problem_id
+        / args.language
+        / args.submission_id
+        / (input_file.name + "_log.xml")
+    )
+    output_file = (
+        output_dir
+        / args.problem_id
+        / args.language
+        / args.submission_id
+        / (input_file.name + "_stdout.txt")
+    )
     if args.language in ("C", "C++"):
         return_code = run_gdb(exe_file, input_file, log_file, output_file)
-    elif args.language == "Java":
-        return_code = run_jdi(exe_file, input_file, log_file, output_file)
     else:
-        raise NotImplementedException(args.language)
+        raise NotImplementedError(args.language)
 
     # end profiling
     end = datetime.now()
     elapsed = end - begin
-    log.info(f'end')
-    log.info(f'elapsed seconds: {elapsed.total_seconds()}')
-    log.info(f'exit code: {return_code}')
+    log.info(f"end")
+    log.info(f"elapsed seconds: {elapsed.total_seconds()}")
+    log.info(f"exit code: {return_code}")
 
     exit(return_code)

@@ -1,8 +1,7 @@
 import xml.etree.ElementTree as ET
-import io
-import re
 from collections import defaultdict
 import argparse
+
 
 def transform_xml(xml_file, schema):
     with open(xml_file) as f:
@@ -65,8 +64,12 @@ if __name__ == "__main__":
     # parse XML
     parser = argparse.ArgumentParser()
     parser.add_argument("xml_file", help="XML file to parse")
-    parser.add_argument("--schema", choices=["tree"], default="tree", help="schema to follow")
-    parser.add_argument("--output", default="output.xml", help="path of output XML file")
+    parser.add_argument(
+        "--schema", choices=["tree"], default="tree", help="schema to follow"
+    )
+    parser.add_argument(
+        "--output", default="output.xml", help="path of output XML file"
+    )
     args = parser.parse_args()
     tree = transform_xml(args.xml_file, args.schema)
     # output formatted XML
