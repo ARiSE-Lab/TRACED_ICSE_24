@@ -24,27 +24,6 @@ def parse_args():
 
     if is_jupyter:
         print(f'Hardcoding args')
-        # C
-        #     cmd_args = [
-        #         '--lang', 'c',
-        #         '--base_dirs', 'c', 'tmp_c_missing',
-        #         '--src_dirs', 'Project_CodeNet/data', 'tmp_c_missing/Project_CodeNet/data',
-        #         '--test',
-        #     ]
-        # Java
-        # cmd_args = [
-        #     '--lang', 'java_1000',
-        #     '--base_dirs', 'java',
-        #     '--src_dirs', 'Project_CodeNet/data', 'tmp/tmp_java/data',
-        #     '--test',
-        # ]
-        # C++
-        # cmd_args = [
-        #     '--lang', 'cpp',
-        #     '--base_dirs', 'pronto_export/cpp_1000_logs_outputs',
-        #     # '--src_dirs', 'Project_CodeNet/data', 'tmp/tmp_java/data',
-        #     '--test',
-        # ]
     else:
         print('Parsing cmd line args')
         cmd_args = sys.argv[1:]
@@ -82,17 +61,8 @@ if sequences_filename.exists():
 lang_to_path = {
     "c": "C",
     "cpp": "C++",
-    "java": "Java",
 }
-# TODO search
 src_dir = Path(args.src_dirs[0])
-# src_dirs = [Path(p) for p in args.src_dirs]
-# print(f'{src_dirs=}')
-# for p in src_dirs:
-#     assert p.exists(), p
-# input_dir = Path(args.root_dir, "all_input_output")
-# print(f'{input_dir=}')
-# TODO search
 input_dir = Path(args.input_dirs[0])
 
 nproc = args.nproc
@@ -101,11 +71,6 @@ import pandas as pd
 all_runs = list(sorted(set(log_files.keys()).intersection(set(output_files.keys()))))
 print(len(all_runs))
 df = pd.DataFrame(all_runs, columns=["lang", "problem", "solution", "input_id"])
-# print(df)
-# df["lang"] = df["run_id"].apply(lambda r: r[0])
-# df["problem"] = df["run_id"].apply(lambda r: r[1])
-# df["solution"] = df["run_id"].apply(lambda r: r[2])
-# df["input_id"] = df["run_id"].apply(lambda r: r[3])
 df["log_file"] = df.apply(lambda row: log_files[(row["lang"], row["problem"], row["solution"], row["input_id"])], axis=1)
 df["output_file"] = df.apply(lambda row: output_files[(row["lang"], row["problem"], row["solution"], row["input_id"])], axis=1)
 df["input_file"] = df.apply(lambda row: input_dir / row["problem"] / f'input_{row["input_id"]}.txt', axis=1)
@@ -117,7 +82,6 @@ num_errors = 0
 printed_error = 0
 lens = []
 outcomes = defaultdict(int)
-# get_sequence_fn = functools.partial(get_sequence, src_dirs=src_dirs, input_dir=input_dir)
 with Pool(nproc) as pool, open(sequences_filename, 'w') as sf:
     pbar = tqdm.tqdm(pool.starmap(get_sequence,
     zip(df["lang"], df["problem"], df["solution"], df["input_id"], df["src_file"], df["src_file_relative"], df["log_file"], df["input_file"], df["output_file"])),

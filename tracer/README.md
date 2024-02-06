@@ -17,6 +17,8 @@ We use a sequenceizer script to read the XML trace, perform preprocessing, and o
 You should get console output matching `test/expected_c/sequenceize_logs_c_output.txt`.
 
 ```bash
+# Possibly run transform_xml?
+# Possibly run sequenceize_logs_from_metadata instead?
 python sequenceize_logs.py --base_dirs . --lang c --src_dirs test --input_dirs test
 ```
 

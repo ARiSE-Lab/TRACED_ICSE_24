@@ -3,10 +3,8 @@
 
 # get_trace function
 from transform_xml import transform_xml
-from collections import defaultdict
 import xml.etree.ElementTree as ET
 import re
-import io
 from text_utils import *
 from pathlib import Path
 import json
