@@ -6,4 +6,12 @@
 /outputs
 /log.xml
 /mini_Project_CodeNet
-/*.jsonl
+
+/run*
+/testcases
+/test_cases
+/old_runs
+/trace*
+/output.xml
+!/*.sh
+/test/p*/C/s*
