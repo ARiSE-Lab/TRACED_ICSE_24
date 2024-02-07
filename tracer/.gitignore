@@ -1,15 +1,12 @@
-/*.tmp
-/*.txt
-/*.json
-
 /logs
 /outputs
 /log.xml
 /mini_Project_CodeNet
 
 /run*
-/testcases
-/test_cases
+/compile_output
+/compile_metadata
+/all_input_output
 /old_runs
 /trace*
 /output.xml
