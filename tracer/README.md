@@ -1,7 +1,18 @@
 # C tracer
 
-Uses GDB (GNU DeBugger). Outputs XML of the program trace to `logs/` and text output of the program `outputs/`.
+Uses GDB (GNU DeBugger). Outputs XML of the program trace to `trace/p*/C/s*/input_*.txt_log.xml` and text output of the program `trace/p*/C/s*/input_*.txt_stdout.txt`.
 Tested with `GNU gdb (GDB) 8.2`.
+
+## Get the data
+
+This script downloads and extracts the data needed for trace collection:
+- The C programs and metadata from Project CodeNet
+- The inputs and expected outputs we extracted from Project CodeNet
+
+```bash
+bash 01_preprocess/download_all_data.sh
+# directories "Project_CodeNet/" and "all_input_output/" should have been created
+```
 
 ## How to generate traces
 
