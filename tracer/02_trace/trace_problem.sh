@@ -12,6 +12,8 @@ shift
 
 set -e
 
+mkdir -p "$trace_root"
+
 for solution in $(find $exe_root/$problem/$lang -executable -type f -name 's*' | xargs -n1 basename)
 do
     for input_file in $(find $input_root/$problem -type f -name 'input_*.txt')
