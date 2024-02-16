@@ -103,6 +103,7 @@ if __name__ == "__main__":
     parser.add_argument("cwd_dir", nargs="?", default=".")
     parser.add_argument("-v", "--verbose", type=int, default=0)
     parser.add_argument("--timeout", default=10, type=int)
+    parser.add_argument("--format", action="store_true")
     args = parser.parse_args()
 
     # set up logger
@@ -148,8 +149,9 @@ if __name__ == "__main__":
         raise NotImplementedError(args.language)
 
     # try to format the log - no sweat if it fails
-    log_file_fullpath = Path(args.cwd_dir) / log_file
-    subprocess.call(f"xmllint --format {log_file_fullpath} --output {log_file_fullpath}", shell=True)
+    if args.format:
+        log_file_fullpath = Path(args.cwd_dir) / log_file
+        subprocess.call(f"xmllint --format {log_file_fullpath} --output {log_file_fullpath}", shell=True)
 
     # end profiling
     end = datetime.now()
