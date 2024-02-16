@@ -147,6 +147,10 @@ if __name__ == "__main__":
     else:
         raise NotImplementedError(args.language)
 
+    # try to format the log - no sweat if it fails
+    log_file_fullpath = Path(args.cwd_dir) / log_file
+    subprocess.call(f"xmllint --format {log_file_fullpath} --output {log_file_fullpath}", shell=True)
+
     # end profiling
     end = datetime.now()
     elapsed = end - begin

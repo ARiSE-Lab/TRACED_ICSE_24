@@ -32,7 +32,7 @@ Install the extra utility packages needed for tracing.
 ```bash
 # Assuming you already have the conda environment named "traced", no package installs needed
 conda activate traced && pip install -r requirements.txt
-sudo apt install -y gdb
+sudo apt install -y gdb libxml2-utils
 ```
 
 ### How to generate traces
