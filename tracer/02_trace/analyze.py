@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
     # start profiling
     begin = datetime.now()
-    log.info(f"begin")
+    log.info(f"begin {args.problem_id}/{args.language}/{args.submission_id}-{os.path.basename(args.input_file)}")
 
     # run tracer
     exe_file = (
@@ -156,8 +156,6 @@ if __name__ == "__main__":
     # end profiling
     end = datetime.now()
     elapsed = end - begin
-    log.info(f"end")
-    log.info(f"elapsed seconds: {elapsed.total_seconds()}")
-    log.info(f"exit code: {return_code}")
+    log.info(f"end {args.problem_id}/{args.language}/{args.submission_id}-{os.path.basename(args.input_file)}, elapsed seconds: {elapsed.total_seconds()}, exit code: {return_code}")
 
     exit(return_code)
