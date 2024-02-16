@@ -20,7 +20,7 @@ then
     head_n="-0"
 fi
 
-script="$(dirname $0)/analyze"
+script="python $(dirname $0)/analyze.py"
 ls $script || exit 1
 gcc --version || exit 1
 g++ --version || exit 1
