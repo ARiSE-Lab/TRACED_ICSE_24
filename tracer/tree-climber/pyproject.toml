@@ -1,0 +1,28 @@
+[project]
+name = "tree-climber"
+description = "Program analysis tools built on tree-sitter."
+version = "0.1.0"
+authors = [
+    { name = "Benjamin Steenhoek", email = "benjis@iastate.edu" }
+]
+dependencies = [
+    "jsonlines",
+    "matplotlib",
+    "networkx",
+    "tree-sitter-languages"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tree_climber"]
+exclude = []
+namespaces = false
+
+[build-system]
+requires = ["setuptools>=43.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
