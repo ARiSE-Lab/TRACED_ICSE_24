@@ -1,7 +1,6 @@
 # C tracer
 
-Uses GDB (GNU DeBugger). Outputs XML of the program trace to `trace/p*/C/s*/input_*.txt_log.xml` and text output of the program `trace/p*/C/s*/input_*.txt_stdout.txt`.
-Tested with `GNU gdb (GDB) 8.2`.
+Uses GDB (GNU DeBugger). Tested with `GNU gdb (GDB) 8.2`.
 
 ## Simple usage
 
