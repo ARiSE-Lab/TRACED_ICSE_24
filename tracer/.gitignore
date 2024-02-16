@@ -1,0 +1,14 @@
+/logs
+/outputs
+/log.xml
+/mini_Project_CodeNet
+
+/run*
+/compile_output
+/compile_metadata
+/all_input_output
+/old_runs
+/trace*
+/output.xml
+!/*.sh
+/test/p*/C/s*
