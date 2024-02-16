@@ -173,3 +173,4 @@ cython_debug/
 /output.xml
 !/*.sh
 /test/p*/C/s*
+/results*
