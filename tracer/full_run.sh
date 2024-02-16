@@ -5,6 +5,7 @@ set -e
 # Set up
 mkdir -p results/trace_tree
 conda activate traced
+sudo apt install -y gdb
 pip install -r requirements.txt
 bash 01_preprocess/download_all_data.sh
 python 01_preprocess/compile_all.py --begin_problem 0 --end_problem 4052
