@@ -64,10 +64,7 @@ p00000/C/s000552118 input_0.txt 2024-02-07T09:16:41 INFO elapsed seconds: 3.6170
 p00000/C/s000552118 input_0.txt 2024-02-07T09:16:41 INFO exit code: 0
 
 # trace all solutions for all problems
-for i in {00000..04052}
-do
-    bash 02_trace/trace_problem.sh compile_output/ run/ all_input_output/ "p${i}" C "-0"
-done
+bash 02_trace/trace_problem.sh compile_output p00000 C all_input_output results
 ```
 
 ### How to convert traces to `.jsonl` format
@@ -80,14 +77,7 @@ $ mkdir -p trace_tree
 $ python 03_postprocess/transform_xml.py trace/p00000/C/s000552118/input_0.txt_log.xml --schema tree --output trace_tree/p00000/C/s000552118/input_0.txt_log.xml
 
 # transform all XMLs to tree format
-for i in {00000..04052}
-do
-    for f in $(ls "trace/p${i}/C/*/*_log.xml")
-    do
-        dst_f="trace_tree/$(realpath --relative-to trace $(dirname $f))"
-        python 03_postprocess/transform_xml.py "$f" --schema tree --output "$dst_f"
-    done
-done
+bash 03_postprocess/postprocess_all_problems.sh
 
 # convert all XMLs to JSONL format
 $ python 03_postprocess/sequenceize_logs_from_metadata.py --lang C --base_dirs trace_tree --src_dirs ../Project_CodeNet/data --input_dir all_input_output --metadata_dir ../Project_CodeNet/metadata --begin_problem 0 --end_problem 4052 --limit_solutions 1 --output trace_tree_sequences
