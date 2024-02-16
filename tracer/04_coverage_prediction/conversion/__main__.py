@@ -148,7 +148,7 @@ import tqdm
 from .converters.branch_prediction import branch
 from .converters.separate_lines import separate_lines
 from .converters.trim import trim
-from treehouse.ast_creator import AstErrorException
+from tree_climber.ast_creator import AstErrorException
 
 
 def convert_file(input_file, output_file, mode, start, stop):

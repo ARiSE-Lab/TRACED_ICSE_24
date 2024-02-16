@@ -1,6 +1,6 @@
 import copy
 import re
-from parser import get_parsed_info
+from .parser import get_parsed_info
 
 from .utils import trace_to_linenos
 

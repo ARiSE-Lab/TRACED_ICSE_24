@@ -3,9 +3,9 @@ import re
 from dataclasses import dataclass
 from typing import List, Dict
 
-from treehouse.tree_sitter_utils import c_parser, cpp_parser
-from treehouse.ast_creator import ASTCreator
-from treehouse.cfg_creator import CFGCreator
+from tree_climber.tree_sitter_utils import c_parser, cpp_parser
+from tree_climber.ast_creator import ASTCreator
+from tree_climber.cfg_creator import CFGCreator
 
 
 @dataclass
