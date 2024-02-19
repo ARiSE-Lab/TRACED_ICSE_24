@@ -3,6 +3,9 @@
 This folder contains the scripts to run the tracer on C programs from Project CodeNet.
 The output of this process produces the "raw" trace outputs which can be postprocessed into model input format and used to pre-traing the TRACED model.
 
+> :warning: **WIP**: We are making this tool available to foster further research.
+> Please be aware that the currently-released version of the tracer tool may not reproduce our work, as we have not fully verified it end-to-end. Thank you!
+
 Uses GDB (GNU DeBugger). Tested with `GNU gdb (GDB) 8.2`.
 
 ## Simple usage
