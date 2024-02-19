@@ -38,6 +38,13 @@ Do you wish to use FP16 or BF16 (mixed precision)? [NO/fp16/bf16]: fp16
 
 ```
 
+## Pre-training data
+
+See [tracer/README.md](./tracer/README.md).
+
+> :warning: **WIP**: We are making the tracer tool available to foster further research.
+> Please be aware that the currently-released version of the tracer tool may not reproduce our work, as we have not fully verified it end-to-end. Thank you!
+
 ## Data and pre-trained checkpoint
 
 __Link:__ [Google Drive Link](https://drive.google.com/file/d/13hZj84I5a5R7ODvWJnW4mux9xS3kY9SU/view?usp=sharing)
