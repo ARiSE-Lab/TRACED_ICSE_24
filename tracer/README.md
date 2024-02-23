@@ -84,7 +84,7 @@ $ python 03_postprocess/transform_xml.py results/p00000/C/s000552118/input_0.txt
 
 # convert all XMLs to JSONL format
 mkdir -p results/sequences
-$ python 03_postprocess/sequenceize_logs_from_metadata.py --lang C --base_dirs results/tree --src_dirs ../Project_CodeNet/data --input_dir all_input_output --metadata_dir ../Project_CodeNet/metadata --begin_problem 0 --end_problem 4052 --limit_solutions 1 --output results/sequences
+$ python 03_postprocess/sequenceize_logs_from_metadata.py --lang C --base_dirs results/tree --src_dirs Project_CodeNet/data --input_dir all_input_output --metadata_dir Project_CodeNet/metadata --begin_problem 0 --end_problem 4052 --output results/sequences
 args=Namespace(lang='C', base_dirs=['results/tree'], src_dirs=['../Project_CodeNet/data'], input_dir='all_input_output', metadata_dir='../Project_CodeNet/metadata', begin_problem=0, end_problem=0, limit_solutions=1, limit_sequences=None, nproc=1, output='results/tree_sequences')
 
 p00000.csv, total=16099, filtered=4849, excluded=11250
@@ -113,12 +113,12 @@ We used the `tree-climber` package (formerly named `treehouse`) to extract CFGs 
 
 ```bash
 # branch-prediction
-python -m 04_coverage_prediction.conversion --input_file results/sequences/sequences_*_full.jsonl --output_file results/sequences/sequences_BRANCH.jsonl --mode branch --lang c
+$ python -m 04_coverage_prediction.conversion --input_file results/sequences/sequences_*_full.jsonl --output_file results/sequences/sequences_BRANCH.jsonl --mode branch --lang c
 convert sequences: 90it [00:00, 787.55it/s]
 success: 84
 total: 90
 # line-prediction
-python -m 04_coverage_prediction.conversion --input_file results/sequences/sequences_*_full.jsonl --output_file results/sequences/sequences_LINE.jsonl --mode separate_lines --lang c
+$ python -m 04_coverage_prediction.conversion --input_file results/sequences/sequences_*_full.jsonl --output_file results/sequences/sequences_LINE.jsonl --mode separate_lines --lang c
 convert sequences: 90it [00:00, 787.55it/s]
 success: 84
 total: 90
