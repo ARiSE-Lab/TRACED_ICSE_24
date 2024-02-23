@@ -60,9 +60,9 @@ success          4026
 Name: count, dtype: int64
 
 # trace one solution for one problem
-$ mkdir -p run
-$ python 02_trace/analyze.py compile_output/ p00000 C s000552118 all_input_output/p00000/input_0.txt run/ --verbose 1
-p00000/C/s000552118 input_0.txt 2024-02-07T09:16:37 DEBUG args=Namespace(exe_dir='compile_output/', problem_id='p00000', language='C', submission_id='s000552118', input_file='all_input_output/p00000/input_0.txt', cwd_dir='run/', verbose=1, timeout=10) trace_py=/home/benjis/Code/trace-modeling_icse2024_recovery/trace_collection_c_cpp/02_trace/trace_asm.py
+$ mkdir -p results
+$ python 02_trace/analyze.py compile_output/ p00000 C s000552118 all_input_output/p00000/input_0.txt results/ --verbose 1
+p00000/C/s000552118 input_0.txt 2024-02-07T09:16:37 DEBUG args=Namespace(exe_dir='compile_output/', problem_id='p00000', language='C', submission_id='s000552118', input_file='all_input_output/p00000/input_0.txt', cwd_dir='results/', verbose=1, timeout=10) trace_py=/home/benjis/Code/trace-modeling_icse2024_recovery/trace_collection_c_cpp/02_trace/trace_asm.py
 p00000/C/s000552118 input_0.txt 2024-02-07T09:16:37 INFO begin
 p00000/C/s000552118 input_0.txt 2024-02-07T09:16:37 DEBUG subprocess args=gdb /home/benjis/Code/trace-modeling_icse2024_recovery/trace_collection_c_cpp/compile_output/p00000/C/s000552118 -batch -nh -ex "set logging file /dev/null" -ex "set logging redirect on" -ex "set logging on" -ex "set print elements unlimited" -ex "set print repeats unlimited" -ex "set max-value-size unlimited" -ex "source /home/benjis/Code/trace-modeling_icse2024_recovery/trace_collection_c_cpp/02_trace/trace_asm.py" -ex "start < /home/benjis/Code/trace-modeling_icse2024_recovery/trace_collection_c_cpp/all_input_output/p00000/input_0.txt > trace/p00000/C/s000552118/input_0.txt_stdout.txt" -ex "trace-asm trace/p00000/C/s000552118/input_0.txt_log.xml"
 p00000/C/s000552118 input_0.txt 2024-02-07T09:16:41 INFO end
@@ -79,18 +79,19 @@ We use a script to read the trace in `.xml` format, combine it with the source c
 
 ```bash
 # transform one XML to tree format
-$ mkdir -p trace_tree
-$ python 03_postprocess/transform_xml.py trace/p00000/C/s000552118/input_0.txt_log.xml --schema tree --output trace_tree/p00000/C/s000552118/input_0.txt_log.xml
-
-# transform all XMLs to tree format
-bash 03_postprocess/postprocess_all_problems.sh
+$ mkdir -p results/tree
+$ python 03_postprocess/transform_xml.py results/p00000/C/s000552118/input_0.txt_log.xml --schema tree --output results/tree/p00000/C/s000552118/input_0.txt_log.xml
 
 # convert all XMLs to JSONL format
-$ python 03_postprocess/sequenceize_logs_from_metadata.py --lang C --base_dirs trace_tree --src_dirs ../Project_CodeNet/data --input_dir all_input_output --metadata_dir ../Project_CodeNet/metadata --begin_problem 0 --end_problem 4052 --limit_solutions 1 --output trace_tree_sequences
-args=Namespace(lang='C', base_dirs=['trace_tree'], src_dirs=['../Project_CodeNet/data'], input_dir='all_input_output', metadata_dir='../Project_CodeNet/metadata', begin_problem=0, end_problem=0, limit_solutions=1, limit_sequences=None, nproc=1, output='trace_tree_sequences')
+mkdir -p results/sequences
+$ python 03_postprocess/sequenceize_logs_from_metadata.py --lang C --base_dirs results/tree --src_dirs ../Project_CodeNet/data --input_dir all_input_output --metadata_dir ../Project_CodeNet/metadata --begin_problem 0 --end_problem 4052 --limit_solutions 1 --output results/sequences
+args=Namespace(lang='C', base_dirs=['results/tree'], src_dirs=['../Project_CodeNet/data'], input_dir='all_input_output', metadata_dir='../Project_CodeNet/metadata', begin_problem=0, end_problem=0, limit_solutions=1, limit_sequences=None, nproc=1, output='results/tree_sequences')
 
 p00000.csv, total=16099, filtered=4849, excluded=11250
 100%|█████████████████████████████████████████████████████████████████████| 4849/4849 [00:01<00:00, 3733.83it/s, missing_log=4848, success=1]
+
+# transform all XMLs to tree format and sequence-ize
+bash 03_postprocess/postprocess_all_problems.sh results
 ```
 
 ### How to convert the traces to branch-prediction or line-prediction format
@@ -112,13 +113,13 @@ We used the `tree-climber` package (formerly named `treehouse`) to extract CFGs 
 
 ```bash
 # branch-prediction
-python -m 04_coverage_prediction.conversion --input_file trace_tree_sequences/sequences_*_full.jsonl --output_file trace_tree_sequences/sequences_BRANCH.jsonl --mode branch --lang c
-convert sequences: 1it [00:00, 345.75it/s]
-success: 1
-total: 1
-# branch-prediction
-python -m 04_coverage_prediction.conversion --input_file trace_tree_sequences/sequences_*_full.jsonl --output_file trace_tree_sequences/sequences_LINE.jsonl --mode separate_lines --lang c
-convert sequences: 1it [00:00, 345.75it/s]
-success: 1
-total: 1
+python -m 04_coverage_prediction.conversion --input_file results/sequences/sequences_*_full.jsonl --output_file results/sequences/sequences_BRANCH.jsonl --mode branch --lang c
+convert sequences: 90it [00:00, 787.55it/s]
+success: 84
+total: 90
+# line-prediction
+python -m 04_coverage_prediction.conversion --input_file results/sequences/sequences_*_full.jsonl --output_file results/sequences/sequences_LINE.jsonl --mode separate_lines --lang c
+convert sequences: 90it [00:00, 787.55it/s]
+success: 84
+total: 90
 ```
