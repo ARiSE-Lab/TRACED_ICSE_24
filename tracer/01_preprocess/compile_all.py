@@ -29,7 +29,7 @@ filext_to_lang = {
 lang_to_filext = {v: k for k, v in filext_to_lang.items()}
 
 source_root_dir = Path(__file__).absolute().parent.parent  # trace-modeling repo
-base_dir = source_root_dir / "../Project_CodeNet"
+base_dir = source_root_dir / "Project_CodeNet"
 metadata_dir = base_dir / "metadata"
 src_dir = base_dir / "data"
 
