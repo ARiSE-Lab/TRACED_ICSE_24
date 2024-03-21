@@ -142,7 +142,7 @@ def do_one(problem_num, sample_submissions):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--start_problem", type=int, help="first problem", default=0)
+    parser.add_argument("--begin_problem", type=int, help="first problem", default=0)
     parser.add_argument("--end_problem", type=int, help="last problem", default=4053)
     parser.add_argument(
         "--sample_submissions", type=int, help="submissions to sample per problem"
@@ -155,7 +155,7 @@ if __name__ == "__main__":
     args.end_problem = min(4053, args.end_problem)
 
     for _ in get_problem_iterator(
-        args.start_problem,
+        args.begin_problem,
         args.end_problem,
         do_one,
         args.nproc,
